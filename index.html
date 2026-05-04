@@ -12,13 +12,16 @@
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem; }
         input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; background: #fff; }
-        .equipe-badge-container { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
-        .badge { background: #e0e0e0; padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; display: flex; align-items: center; }
-        .badge span { margin-left: 8px; cursor: pointer; font-weight: bold; color: var(--danger); }
+        
+        /* Visualização de quem já foi selecionado */
+        .equipe-badge-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; min-height: 20px; }
+        .badge { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; display: flex; align-items: center; font-weight: 500; }
+        .badge span { margin-left: 10px; cursor: pointer; font-weight: bold; color: var(--danger); font-size: 1.1rem; }
+        
         .btn-whatsapp { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .admin-section { margin-top: 25px; border-top: 2px dashed #ccc; padding-top: 15px; display: none; }
         .admin-list-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
-        .btn-admin-toggle { background: none; color: #999; font-size: 0.7rem; border: none; width: auto; margin: 20px auto 0; display: block; text-decoration: underline; }
+        .btn-admin-toggle { background: none; color: #999; font-size: 0.7rem; border: none; width: auto; margin: 20px auto 0; display: block; text-decoration: underline; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -49,10 +52,11 @@
         </div>
 
         <div class="form-group">
-            <label>Colaboradores:</label>
+            <label>Colaboradores (Selecione para adicionar):</label>
             <select id="selectColaboradores" onchange="adicionarColaborador()">
                 <option value="">Selecione um nome...</option>
             </select>
+            <!-- Mostra quem já foi selecionado -->
             <div class="equipe-badge-container" id="badgesEquipe"></div>
         </div>
 
@@ -100,8 +104,11 @@
     <button class="btn-admin-toggle" onclick="toggleAdmin()">⚙️ Gerenciar Equipe</button>
 
     <div class="admin-section" id="adminPanel">
-        <input type="text" id="novoNome" placeholder="Novo nome">
-        <button onclick="addNovoColab()" style="padding: 10px; margin-bottom: 10px;">Adicionar</button>
+        <label>Adicionar Colaborador:</label>
+        <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+            <input type="text" id="novoNome">
+            <button onclick="addNovoColab()" style="padding: 10px; width: 60px;">OK</button>
+        </div>
         <div id="listaAdminColaboradores"></div>
         <button onclick="toggleAdmin()" style="background:#666; margin-top: 10px;">Fechar</button>
     </div>
@@ -111,8 +118,9 @@
     let colaboradores = ["Edenildo Rodrigues", "Joelcinei Guimarães", "Matheus Costa", "Juenisson Belem", "Cezar Prado", "Ezequiel Silva", "Lucas Anjos"];
     let equipeSelecionada = [];
 
-    if (localStorage.getItem('tecnicos_v4')) {
-        colaboradores = JSON.parse(localStorage.getItem('tecnicos_v4'));
+    // Persistência local da lista de nomes
+    if (localStorage.getItem('tecnicos_v5')) {
+        colaboradores = JSON.parse(localStorage.getItem('tecnicos_v5'));
     }
 
     function atualizarSelect() {
@@ -139,7 +147,7 @@
             equipeSelecionada.push(nome);
             renderBadges();
         }
-        select.value = "";
+        select.value = ""; // Reseta o select para permitir nova escolha
     }
 
     function removerBadge(nome) {
@@ -156,13 +164,18 @@
     }
 
     function addNovoColab() {
-        const n = document.getElementById('novoNome').value;
-        if (n) { colaboradores.push(n); localStorage.setItem('tecnicos_v4', JSON.stringify(colaboradores)); atualizarSelect(); document.getElementById('novoNome').value = ''; }
+        const n = document.getElementById('novoNome').value.trim();
+        if (n) { 
+            colaboradores.push(n); 
+            localStorage.setItem('tecnicos_v5', JSON.stringify(colaboradores)); 
+            atualizarSelect(); 
+            document.getElementById('novoNome').value = ''; 
+        }
     }
 
     function excluirColaborador(nome) {
         colaboradores = colaboradores.filter(n => n !== nome);
-        localStorage.setItem('tecnicos_v4', JSON.stringify(colaboradores));
+        localStorage.setItem('tecnicos_v5', JSON.stringify(colaboradores));
         atualizarSelect();
     }
 
@@ -171,8 +184,23 @@
         p.style.display = p.style.display === 'block' ? 'none' : 'block';
     }
 
+    function resetarFormulario() {
+        document.getElementById('cftvForm').reset();
+        equipeSelecionada = [];
+        renderBadges();
+        atualizarDataHora(); // Reatribui data/hora atuais após limpar
+    }
+
+    function atualizarDataHora() {
+        const agora = new Date();
+        document.getElementById('data_auto').value = agora.toLocaleDateString('pt-BR');
+        document.getElementById('hora_auto').value = agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+    }
+
     function enviarWhatsApp() {
         const atividade = document.getElementById('atividade').value;
+        if (!atividade) { alert("Preencha a atividade!"); return; }
+
         const data = document.getElementById('data_auto').value;
         const hora = document.getElementById('hora_auto').value;
         const chamado = document.getElementById('chamado').value || "Não informado";
@@ -196,12 +224,13 @@
             `*Comentários:* ${obs}`;
 
         window.open(`https://api.whatsapp.com/send?text=${mensagem}`, '_blank');
+        
+        // Limpa o formulário após 1 segundo para o técnico poder fazer outro chamado
+        setTimeout(resetarFormulario, 1000);
     }
 
     window.onload = function() {
-        const agora = new Date();
-        document.getElementById('data_auto').value = agora.toLocaleDateString('pt-BR');
-        document.getElementById('hora_auto').value = agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+        atualizarDataHora();
         atualizarSelect();
     };
 </script>
