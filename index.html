@@ -2,62 +2,159 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relatório de Manutenção CFTV</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Relatório Técnico - Telejur</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 20px; }
-        .container { max-width: 700px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: auto; }
-        h2 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
-        .section { margin-bottom: 20px; padding: 15px; border: 1px solid #eee; border-radius: 5px; }
-        label { display: block; margin-top: 10px; font-weight: bold; color: #34495e; }
-        input[type="text"], input[type="date"], textarea, select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        .checkbox-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        button { background-color: #3498db; color: white; border: none; padding: 15px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; margin-top: 20px; }
-        button:hover { background-color: #2980b9; }
+        :root {
+            --primary-color: #0056b3;
+            --bg-color: #f8f9fa;
+            --text-color: #333;
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-color);
+            margin: 0;
+            padding: 15px;
+        }
+
+        .container { 
+            max-width: 600px; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            margin: auto; 
+        }
+
+        h2 { 
+            text-align: center; 
+            color: var(--primary-color); 
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        .form-group { margin-bottom: 15px; }
+
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: 600; 
+            font-size: 0.9rem;
+        }
+
+        input, select, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ccc; 
+            border-radius: 8px; 
+            font-size: 16px; /* Evita zoom automático no iOS */
+            box-sizing: border-box; 
+            background-color: #fff;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 5px rgba(0,86,179,0.2);
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row > div { flex: 1; }
+
+        button { 
+            background-color: var(--primary-color); 
+            color: white; 
+            border: none; 
+            padding: 15px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            width: 100%; 
+            font-size: 1.1rem; 
+            font-weight: bold;
+            margin-top: 10px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button:active { transform: scale(0.98); background-color: #004494; }
+
+        /* Estilo para Checklist mobile */
+        .checklist {
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Manutenção Preventiva/Corretiva CFTV</h2>
+    <h2>Manutenção e Atividades</h2>
     
-    <!-- Substitua o ID abaixo pelo seu ID do Formspree ou similar -->
     <form action="https://formspree.io/f/seu-id-aqui" method="POST">
         
-        <div class="section">
-            <h3>Informações Gerais</h3>
-            <label>Técnico Responsável:</label>
-            <input type="text" name="tecnico" required>
-            
-            <label>Cliente / Unidade:</label>
-            <input type="text" name="cliente" required>
-            
-            <label>Data da Visita:</label>
-            <input type="date" name="data" required>
+        <div class="form-group">
+            <label>Atividade:</label>
+            <input type="text" name="atividade" placeholder="Ex: Manutenção CFTV" required>
         </div>
 
-        <div class="section">
-            <h3>Checklist de Hardware</h3>
-            <div class="checkbox-group">
-                <label><input type="checkbox" name="limpeza_lentes"> Limpeza de Lentes</label>
-                <label><input type="checkbox" name="focagem"> Ajuste de Foco</label>
-                <label><input type="checkbox" name="conectores"> Verificação de BNC/RJ45</label>
-                <label><input type="checkbox" name="fonte"> Teste de Fontes/Amperagem</label>
-                <label><input type="checkbox" name="hd_status"> Verificação de HD (Gravação)</label>
-                <label><input type="checkbox" name="nobreak"> Teste de Nobreak/Bateria</label>
+        <div class="row">
+            <div class="form-group">
+                <label>Data:</label>
+                <input type="date" name="data" required>
+            </div>
+            <div class="form-group">
+                <label>Nº Chamado:</label>
+                <input type="text" name="chamado" placeholder="0000/2026">
             </div>
         </div>
 
-        <div class="section">
-            <h3>Estado do Sistema</h3>
-            <label>Total de Câmeras:</label>
-            <input type="text" name="total_cameras">
-            
-            <label>Câmeras Offline (IDs):</label>
-            <textarea name="cameras_offline" rows="2"></textarea>
-            
-            <label>Observações Técnicas:</label>
-            <textarea name="observacoes" rows="4" placeholder="Descreva as anomalias ou peças trocadas..."></textarea>
+        <div class="form-group">
+            <label>Colaboradores:</label>
+            <input type="text" name="colaboradores" placeholder="Nomes da equipe">
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <label>Site:</label>
+                <input type="text" name="site" placeholder="Unidade/Empresa">
+            </div>
+            <div class="form-group">
+                <label>Local:</label>
+                <input type="text" name="local" placeholder="Setor/Galpão">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Utilização do SkyMunck:</label>
+            <select name="skymunck">
+                <option value="nao">Não Utilizado</option>
+                <option value="sim">Sim - Operacional</option>
+                <option value="sim_problema">Sim - Com Ressalvas</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Status Final:</label>
+            <select name="status">
+                <option value="concluido">✅ Concluído</option>
+                <option value="pendente">⚠️ Pendente</option>
+                <option value="em_andamento">⏳ Em Andamento</option>
+                <option value="impedimento">❌ Com Impedimento</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Observações Adicionais:</label>
+            <textarea name="obs" rows="3" placeholder="Detalhes técnicos relevantes..."></textarea>
         </div>
 
         <button type="submit">Enviar Relatório</button>
