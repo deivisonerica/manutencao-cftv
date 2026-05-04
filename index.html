@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ATIVIDADE DO DIA - Telejur</title>
+    <title>RELATÓRIO DE ATIVIDADE</title>
     <style>
         :root { 
             --primary: #25d366; 
@@ -18,7 +18,7 @@
         body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; }
         .container { max-width: 500px; background: var(--white); padding: 25px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); margin: auto; }
         
-        h2 { color: var(--primary-dark); text-align: center; margin-bottom: 25px; font-weight: 700; }
+        h2 { color: var(--primary-dark); text-align: center; margin-bottom: 25px; font-weight: 700; text-transform: uppercase; }
         .form-group { margin-bottom: 18px; }
         label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: #606770; }
         
@@ -27,7 +27,6 @@
             font-size: 16px; box-sizing: border-box; transition: border-color 0.2s;
         }
         input:focus { border-color: var(--primary); outline: none; }
-        input:invalid { border-color: var(--danger); }
 
         .equipe-badge-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
         .badge { 
@@ -37,9 +36,10 @@
         .badge span { margin-left: 8px; cursor: pointer; color: #1877f2; font-size: 1.2rem; }
 
         .btn-whatsapp { 
-            background: var(--primary); color: white; border: none; padding: 16px; border-radius: 10px; 
+            background: var(--primary); color: white; border: none; padding: 166px; border-radius: 10px; 
             width: 100%; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 15px;
             box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+            padding: 16px; /* Corrigido padding */
         }
 
         .modal-overlay {
@@ -50,9 +50,7 @@
         .modal-content {
             background: var(--white); width: 90%; max-width: 400px; padding: 20px;
             border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            animation: slideUp 0.3s ease-out;
         }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .add-box { display: flex; gap: 8px; margin-bottom: 20px; }
@@ -73,9 +71,9 @@
 <body>
 
 <div class="container">
-    <h2>ATIVIDADE DO DIA</h2>
+    <h2>RELATÓRIO DE ATIVIDADE</h2>
     
-    <form id="cftvForm">
+    <form id="mainForm">
         <div class="form-group">
             <label>Atividade:</label>
             <input type="text" id="atividade" placeholder="Ex: Manutenção Preventiva" required>
@@ -94,15 +92,13 @@
 
         <div class="form-group">
             <label>Nº Chamado:</label>
-            <input type="text" id="chamado" placeholder="Ex: INC1234567" 
-                   pattern="^([iI][nN][cC]\d{7}|[sS][cC][tT][aA][sS][kK]\d{7})$" 
-                   title="Inicie com INC ou SCTASK + 7 números." required>
+            <input type="text" id="chamado" placeholder="Ex: INC1234567" required>
         </div>
 
         <div class="form-group">
-            <label>Equipe Técnica (Mínimo 1):</label>
+            <label>Equipe Técnica:</label>
             <select id="selectColaboradores" onchange="adicionarColaborador()">
-                <option value="">Selecione para adicionar...</option>
+                <option value="">Selecione...</option>
             </select>
             <div class="equipe-badge-container" id="badgesEquipe"></div>
         </div>
@@ -133,7 +129,7 @@
         <div class="form-group">
             <label>Status:</label>
             <select id="status" required>
-                <option value="">Selecione o estado...</option>
+                <option value="">Selecione...</option>
                 <option value="Concluído">✅ Concluído</option>
                 <option value="Pendente">⚠️ Pendente</option>
                 <option value="Em Andamento">⏳ Em Andamento</option>
@@ -141,8 +137,8 @@
         </div>
 
         <div class="form-group">
-            <label>Comentários (Opcional):</label>
-            <textarea id="comentarios" rows="3" placeholder="Observações importantes..."></textarea>
+            <label>Comentários:</label>
+            <textarea id="comentarios" rows="3"></textarea>
         </div>
 
         <button type="button" class="btn-whatsapp" onclick="enviarRelatorio()">
@@ -160,8 +156,8 @@
             <button onclick="toggleModal(false)" style="background:none; border:none; font-size: 1.5rem; cursor:pointer;">&times;</button>
         </div>
         <div class="add-box">
-            <input type="text" id="novoNome" placeholder="Nome do colaborador">
-            <button onclick="addNovoColab()" style="background: var(--primary-dark); color: white; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer;">ADD</button>
+            <input type="text" id="novoNome" placeholder="Nome">
+            <button onclick="addNovoColab()" style="background: var(--primary-dark); color: white; border: none; padding: 0 15px; border-radius: 8px; cursor: pointer;">ADD</button>
         </div>
         <div class="colab-list" id="listaAdminColaboradores"></div>
         <button onclick="toggleModal(false)" style="width: 100%; padding: 12px; margin-top: 15px; border: none; border-radius: 10px; background: #eee; font-weight: 600; cursor: pointer;">Concluir</button>
@@ -171,7 +167,7 @@
 <script>
     const URL_GOOGLE_SHEETS = "https://script.google.com/macros/s/AKfycbznxOMvEwie2epxU9xOw4Wzudc6n-skaGv4E34A37FWSXFtZu2ckhvP5zFkh1Vv3WWE/exec";
 
-    let colaboradores = ["Edenildo Rodrigues", "Joelcinei Guimarães", "Reginaldo Pereira"]; // Lista baseada no seu histórico
+    let colaboradores = ["Edenildo Rodrigues", "Joelcinei Guimarães", "Reginaldo Pereira"];
     let equipeSelecionada = [];
 
     if (localStorage.getItem('tecnicos_v15')) {
@@ -180,7 +176,7 @@
 
     function atualizarSelect() {
         const select = document.getElementById('selectColaboradores');
-        select.innerHTML = '<option value="">Selecione para adicionar...</option>';
+        select.innerHTML = '<option value="">Selecione...</option>';
         colaboradores.sort().forEach(nome => {
             const isSelected = equipeSelecionada.includes(nome);
             select.innerHTML += `<option value="${nome}" ${isSelected ? 'disabled' : ''}>${nome} ${isSelected ? '✔' : ''}</option>`;
@@ -248,12 +244,11 @@
     }
 
     async function enviarRelatorio() {
-        const form = document.getElementById('cftvForm');
+        const form = document.getElementById('mainForm');
         if (equipeSelecionada.length === 0) { alert("Adicione pelo menos um técnico!"); return; }
         if (!form.checkValidity()) { form.reportValidity(); return; }
 
         const d = {
-            tipo: "CFTV", // Campo fixo para a planilha
             atividade: document.getElementById('atividade').value,
             data: document.getElementById('data_auto').value,
             hora: document.getElementById('hora_auto').value,
@@ -266,17 +261,14 @@
             obs: document.getElementById('comentarios').value || "Nenhuma observação."
         };
 
-        // 1. ENVIO PARA O GOOGLE SHEETS
-        fetch(URL_GOOGLE_SHEETS, {
-            method: 'POST',
-            mode: 'no-cors',
-            cache: 'no-cache',
-            body: JSON.stringify(d)
-        }).catch(e => console.log("Erro Planilha: ", e));
+        // Envio Planilha
+        fetch(URL_GOOGLE_SHEETS, { method: 'POST', mode: 'no-cors', body: JSON.stringify(d) });
 
-        // 2. MONTAGEM WHATSAPP
+        // Envio WhatsApp
         const sep = "----------------------------------------";
-        const mensagem = `*ATIVIDADE DO DIA*%0A` +
+        const equipeWhats = encodeURIComponent(equipeSelecionada.join('\n'));
+        
+        const mensagem = `*RELATÓRIO DE ATIVIDADE*%0A` +
             `${sep}%0A%0A` +
             `*Atividade:*%0A${d.atividade}%0A` +
             `${sep}%0A` +
@@ -286,7 +278,7 @@
             `${sep}%0A` +
             `*Nº Chamado:*%0A${d.chamado}%0A` +
             `${sep}%0A` +
-            `*Colaboradores:*%0A${encodeURIComponent(d.equipe)}%0A` +
+            `*Colaboradores:*%0A${equipeWhats}%0A` +
             `${sep}%0A` +
             `*Site:*%0A${d.site}%0A` +
             `${sep}%0A` +
