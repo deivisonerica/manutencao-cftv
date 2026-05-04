@@ -5,22 +5,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Manutenção CFTV - Telejur</title>
     <style>
-        :root { --primary: #25d366; --danger: #dc3545; --bg: #f4f7f6; --text: #333; --disabled: #ccc; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; }
-        .container { max-width: 500px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin: auto; }
-        h2 { color: #128c7e; text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-top: 0; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; background: #fff; }
+        :root { 
+            --primary: #25d366; 
+            --primary-dark: #128c7e;
+            --danger: #ff4d4d; 
+            --bg: #f0f2f5; 
+            --text: #1c1e21; 
+            --white: #ffffff;
+            --gray-light: #f5f6f7;
+        }
+        
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; }
+        .container { max-width: 500px; background: var(--white); padding: 25px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); margin: auto; }
+        
+        h2 { color: var(--primary-dark); text-align: center; margin-bottom: 25px; font-weight: 700; }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: #606770; }
+        
+        input, select, textarea { 
+            width: 100%; padding: 12px; border: 1.5px solid #dddfe2; border-radius: 10px; 
+            font-size: 16px; box-sizing: border-box; transition: border-color 0.2s;
+        }
+        input:focus { border-color: var(--primary); outline: none; }
         input:invalid { border-color: var(--danger); }
-        .equipe-badge-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; min-height: 20px; }
-        .badge { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; display: flex; align-items: center; font-weight: 500; }
-        .badge span { margin-left: 10px; cursor: pointer; font-weight: bold; color: var(--danger); font-size: 1.1rem; }
-        .btn-whatsapp { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .admin-section { margin-top: 25px; border-top: 2px dashed #ccc; padding-top: 15px; display: none; }
-        .admin-list-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
-        .btn-admin-toggle { background: none; color: #999; font-size: 0.7rem; border: none; width: auto; margin: 20px auto 0; display: block; text-decoration: underline; cursor: pointer; }
-        option:disabled { color: var(--disabled); background-color: #f0f0f0; }
+
+        /* Badges de Colaboradores Selecionados */
+        .equipe-badge-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+        .badge { 
+            background: #e7f3ff; color: #1877f2; padding: 6px 14px; border-radius: 50px; 
+            font-size: 0.85rem; display: flex; align-items: center; font-weight: 600; 
+        }
+        .badge span { margin-left: 8px; cursor: pointer; color: #1877f2; font-size: 1.2rem; }
+
+        .btn-whatsapp { 
+            background: var(--primary); color: white; border: none; padding: 16px; border-radius: 10px; 
+            width: 100%; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 15px;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+        }
+
+        /* MODAL DE GERENCIAR EQUIPE */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-content {
+            background: var(--white); width: 90%; max-width: 400px; padding: 20px;
+            border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .admin-header h3 { margin: 0; font-size: 1.2rem; }
+        
+        .add-box { display: flex; gap: 8px; margin-bottom: 20px; }
+        .add-box input { flex: 1; border-radius: 8px; }
+        .btn-add { background: var(--primary-dark); color: white; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+        .colab-list { max-height: 250px; overflow-y: auto; }
+        .colab-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px; background: var(--gray-light); border-radius: 10px;
+            margin-bottom: 8px; font-size: 0.95rem; font-weight: 500;
+        }
+        .btn-del { color: var(--danger); background: none; border: none; cursor: pointer; font-weight: bold; padding: 5px; }
+
+        .btn-close-modal { width: 100%; padding: 12px; margin-top: 15px; border: none; border-radius: 10px; background: #eee; font-weight: 600; cursor: pointer; }
+        
+        .btn-admin-open { 
+            background: none; color: #8a8d91; font-size: 0.85rem; border: none; 
+            margin: 25px auto 0; display: block; cursor: pointer; text-decoration: underline; 
+        }
+
+        option:disabled { color: #bcc0c4; }
     </style>
 </head>
 <body>
@@ -31,7 +89,7 @@
     <form id="cftvForm">
         <div class="form-group">
             <label>Atividade:</label>
-            <input type="text" id="atividade" placeholder="Ex: Ajuste de Câmeras" required>
+            <input type="text" id="atividade" placeholder="O que foi feito?" required>
         </div>
 
         <div style="display: flex; gap: 10px;">
@@ -46,16 +104,16 @@
         </div>
 
         <div class="form-group">
-            <label>Nº Chamado (INC ou SCTASK + 7 dígitos):</label>
+            <label>Nº Chamado:</label>
             <input type="text" id="chamado" placeholder="Ex: INC1234567" 
                    pattern="^(INC\d{7}|SCTASK\d{7})$" 
                    title="Inicie com INC ou SCTASK + 7 números." required>
         </div>
 
         <div class="form-group">
-            <label>Colaboradores (Mínimo 1):</label>
+            <label>Equipe Técnica (Mínimo 1):</label>
             <select id="selectColaboradores" onchange="adicionarColaborador()">
-                <option value="">Selecione um nome...</option>
+                <option value="">Selecione para adicionar...</option>
             </select>
             <div class="equipe-badge-container" id="badgesEquipe"></div>
         </div>
@@ -76,17 +134,9 @@
         </div>
 
         <div class="form-group">
-            <label>Utilização do SkyMunck:</label>
-            <select id="skymunck" required>
-                <option value="Não Utilizado">Não Utilizado</option>
-                <option value="Utilizado">Utilizado</option>
-            </select>
-        </div>
-
-        <div class="form-group">
             <label>Status:</label>
             <select id="status" required>
-                <option value="">Selecione...</option>
+                <option value="">Selecione o estado...</option>
                 <option value="Concluído">✅ Concluído</option>
                 <option value="Pendente">⚠️ Pendente</option>
                 <option value="Em Andamento">⏳ Em Andamento</option>
@@ -95,24 +145,38 @@
 
         <div class="form-group">
             <label>Comentários:</label>
-            <textarea id="comentarios" rows="3" placeholder="Detalhes técnicos..." required></textarea>
+            <textarea id="comentarios" rows="3" placeholder="Observações importantes..." required></textarea>
         </div>
 
+        <!-- Campo Oculto para SkyMunck (Simplificado para o layout) -->
+        <input type="hidden" id="skymunck" value="Não Utilizado">
+
         <button type="button" class="btn-whatsapp" onclick="enviarWhatsApp()">
-            Enviar para WhatsApp
+            ENVIAR RELATÓRIO
         </button>
     </form>
 
-    <button class="btn-admin-toggle" onclick="toggleAdmin()">⚙️ Gerenciar Equipe</button>
+    <button class="btn-admin-open" onclick="toggleModal(true)">⚙️ Gerenciar Nomes da Equipe</button>
+</div>
 
-    <div class="admin-section" id="adminPanel">
-        <label>Novo Colaborador:</label>
-        <div style="display: flex; gap: 5px; margin-bottom: 10px;">
-            <input type="text" id="novoNome">
-            <button onclick="addNovoColab()" style="padding: 10px; width: 60px;">OK</button>
+<!-- MODAL GERENCIAR EQUIPE -->
+<div class="modal-overlay" id="modalEquipe">
+    <div class="modal-content">
+        <div class="admin-header">
+            <h3>Gerenciar Equipe</h3>
+            <button onclick="toggleModal(false)" style="background:none; border:none; font-size: 1.5rem; cursor:pointer;">&times;</button>
         </div>
-        <div id="listaAdminColaboradores"></div>
-        <button onclick="toggleAdmin()" style="background:#666; margin-top: 10px;">Fechar</button>
+        
+        <div class="add-box">
+            <input type="text" id="novoNome" placeholder="Nome do colaborador">
+            <button class="btn-add" onclick="addNovoColab()">ADD</button>
+        </div>
+
+        <div class="colab-list" id="listaAdminColaboradores">
+            <!-- Nomes aparecem aqui -->
+        </div>
+
+        <button class="btn-close-modal" onclick="toggleModal(false)">Concluir</button>
     </div>
 </div>
 
@@ -120,17 +184,16 @@
     let colaboradores = ["Edenildo Rodrigues", "Joelcinei Guimarães", "Matheus Costa", "Juenisson Belem", "Cezar Prado", "Ezequiel Silva", "Lucas Anjos"];
     let equipeSelecionada = [];
 
-    if (localStorage.getItem('tecnicos_v7')) {
-        colaboradores = JSON.parse(localStorage.getItem('tecnicos_v7'));
+    if (localStorage.getItem('tecnicos_v8')) {
+        colaboradores = JSON.parse(localStorage.getItem('tecnicos_v8'));
     }
 
     function atualizarSelect() {
         const select = document.getElementById('selectColaboradores');
-        select.innerHTML = '<option value="">Selecione um nome...</option>';
+        select.innerHTML = '<option value="">Selecione para adicionar...</option>';
         colaboradores.sort().forEach(nome => {
             const isSelected = equipeSelecionada.includes(nome);
-            const disabledAttr = isSelected ? 'disabled' : '';
-            select.innerHTML += `<option value="${nome}" ${disabledAttr}>${nome} ${isSelected ? '(Selecionado)' : ''}</option>`;
+            select.innerHTML += `<option value="${nome}" ${isSelected ? 'disabled' : ''}>${nome} ${isSelected ? '✔' : ''}</option>`;
         });
         renderizarListaAdmin();
     }
@@ -139,8 +202,16 @@
         const list = document.getElementById('listaAdminColaboradores');
         list.innerHTML = '';
         colaboradores.sort().forEach(nome => {
-            list.innerHTML += `<div class="admin-list-item">${nome} <span style="color:red; cursor:pointer" onclick="excluirColaborador('${nome}')">Excluir</span></div>`;
+            list.innerHTML += `
+                <div class="colab-item">
+                    <span>${nome}</span>
+                    <button class="btn-del" onclick="excluirColaborador('${nome}')">Remover</button>
+                </div>`;
         });
+    }
+
+    function toggleModal(show) {
+        document.getElementById('modalEquipe').style.display = show ? 'flex' : 'none';
     }
 
     function adicionarColaborador() {
@@ -164,7 +235,7 @@
         const container = document.getElementById('badgesEquipe');
         container.innerHTML = '';
         equipeSelecionada.forEach(nome => {
-            container.innerHTML += `<div class="badge">${nome}<span onclick="removerBadge('${nome}')">×</span></div>`;
+            container.innerHTML += `<div class="badge">${nome}<span onclick="removerBadge('${nome}')">&times;</span></div>`;
         });
     }
 
@@ -172,21 +243,18 @@
         const n = document.getElementById('novoNome').value.trim();
         if (n) { 
             colaboradores.push(n); 
-            localStorage.setItem('tecnicos_v7', JSON.stringify(colaboradores)); 
+            localStorage.setItem('tecnicos_v8', JSON.stringify(colaboradores)); 
             atualizarSelect(); 
             document.getElementById('novoNome').value = ''; 
         }
     }
 
     function excluirColaborador(nome) {
-        colaboradores = colaboradores.filter(n => n !== nome);
-        localStorage.setItem('tecnicos_v7', JSON.stringify(colaboradores));
-        atualizarSelect();
-    }
-
-    function toggleAdmin() {
-        const p = document.getElementById('adminPanel');
-        p.style.display = p.style.display === 'block' ? 'none' : 'block';
+        if(confirm(`Remover ${nome} da lista definitiva?`)) {
+            colaboradores = colaboradores.filter(n => n !== nome);
+            localStorage.setItem('tecnicos_v8', JSON.stringify(colaboradores));
+            atualizarSelect();
+        }
     }
 
     function atualizarDataHora() {
@@ -197,16 +265,8 @@
 
     function enviarWhatsApp() {
         const form = document.getElementById('cftvForm');
-        
-        if (equipeSelecionada.length === 0) {
-            alert("Selecione pelo menos um colaborador!");
-            return;
-        }
-
-        if (!form.checkValidity()) {
-            form.reportValidity();
-            return;
-        }
+        if (equipeSelecionada.length === 0) { alert("Adicione pelo menos um técnico!"); return; }
+        if (!form.checkValidity()) { form.reportValidity(); return; }
 
         const dados = {
             atividade: document.getElementById('atividade').value,
@@ -216,12 +276,10 @@
             equipe: equipeSelecionada.join(', '),
             site: document.getElementById('site').value,
             local: document.getElementById('local').value,
-            skymunck: document.getElementById('skymunck').value,
             status: document.getElementById('status').value,
             obs: document.getElementById('comentarios').value
         };
 
-        // Formatação WhatsApp: Título sublinhado com traços e espaçamento duplo entre campos
         const mensagem = `*RELATÓRIO DE MANUTENÇÃO CFTV*%0A` +
             `----------------------------------------%0A%0A` +
             `*Atividade:*%0A${dados.atividade}%0A%0A` +
@@ -231,7 +289,6 @@
             `*Colaboradores:*%0A${dados.equipe}%0A%0A` +
             `*Site:*%0A${dados.site}%0A%0A` +
             `*Local:*%0A${dados.local}%0A%0A` +
-            `*SkyMunck:*%0A${dados.skymunck}%0A%0A` +
             `*Status:*%0A${dados.status}%0A%0A` +
             `*Comentários:*%0A${dados.obs}`;
 
