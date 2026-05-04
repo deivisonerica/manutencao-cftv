@@ -29,7 +29,6 @@
         input:focus { border-color: var(--primary); outline: none; }
         input:invalid { border-color: var(--danger); }
 
-        /* Badges de Colaboradores Selecionados */
         .equipe-badge-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
         .badge { 
             background: #e7f3ff; color: #1877f2; padding: 6px 14px; border-radius: 50px; 
@@ -43,7 +42,6 @@
             box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
         }
 
-        /* MODAL DE GERENCIAR EQUIPE */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);
@@ -57,22 +55,15 @@
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .admin-header h3 { margin: 0; font-size: 1.2rem; }
-        
         .add-box { display: flex; gap: 8px; margin-bottom: 20px; }
-        .add-box input { flex: 1; border-radius: 8px; }
-        .btn-add { background: var(--primary-dark); color: white; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-
         .colab-list { max-height: 250px; overflow-y: auto; }
         .colab-item {
             display: flex; justify-content: space-between; align-items: center;
             padding: 12px; background: var(--gray-light); border-radius: 10px;
             margin-bottom: 8px; font-size: 0.95rem; font-weight: 500;
         }
-        .btn-del { color: var(--danger); background: none; border: none; cursor: pointer; font-weight: bold; padding: 5px; }
+        .btn-del { color: var(--danger); background: none; border: none; cursor: pointer; font-weight: bold; }
 
-        .btn-close-modal { width: 100%; padding: 12px; margin-top: 15px; border: none; border-radius: 10px; background: #eee; font-weight: 600; cursor: pointer; }
-        
         .btn-admin-open { 
             background: none; color: #8a8d91; font-size: 0.85rem; border: none; 
             margin: 25px auto 0; display: block; cursor: pointer; text-decoration: underline; 
@@ -89,7 +80,7 @@
     <form id="cftvForm">
         <div class="form-group">
             <label>Atividade:</label>
-            <input type="text" id="atividade" placeholder="O que foi feito?" required>
+            <input type="text" id="atividade" placeholder="Ex: Limpeza de camera" required>
         </div>
 
         <div style="display: flex; gap: 10px;">
@@ -105,9 +96,10 @@
 
         <div class="form-group">
             <label>Nº Chamado:</label>
-            <input type="text" id="chamado" placeholder="Ex: INC1234567" 
-                   pattern="^(INC\d{7}|SCTASK\d{7})$" 
-                   title="Inicie com INC ou SCTASK + 7 números." required>
+            <!-- Regex atualizada para [iI][nN][cC] e [sS][cC][tT][aA][sS][kK] -->
+            <input type="text" id="chamado" placeholder="Ex: inc1234567" 
+                   pattern="^([iI][nN][cC]\d{7}|[sS][cC][tT][aA][sS][kK]\d{7})$" 
+                   title="Inicie com INC ou SCTASK (maiúsculo ou minúsculo) + 7 números." required>
         </div>
 
         <div class="form-group">
@@ -148,9 +140,6 @@
             <textarea id="comentarios" rows="3" placeholder="Observações importantes..." required></textarea>
         </div>
 
-        <!-- Campo Oculto para SkyMunck (Simplificado para o layout) -->
-        <input type="hidden" id="skymunck" value="Não Utilizado">
-
         <button type="button" class="btn-whatsapp" onclick="enviarWhatsApp()">
             ENVIAR RELATÓRIO
         </button>
@@ -159,7 +148,6 @@
     <button class="btn-admin-open" onclick="toggleModal(true)">⚙️ Gerenciar Nomes da Equipe</button>
 </div>
 
-<!-- MODAL GERENCIAR EQUIPE -->
 <div class="modal-overlay" id="modalEquipe">
     <div class="modal-content">
         <div class="admin-header">
@@ -169,14 +157,12 @@
         
         <div class="add-box">
             <input type="text" id="novoNome" placeholder="Nome do colaborador">
-            <button class="btn-add" onclick="addNovoColab()">ADD</button>
+            <button onclick="addNovoColab()" style="background: var(--primary-dark); color: white; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer;">ADD</button>
         </div>
 
-        <div class="colab-list" id="listaAdminColaboradores">
-            <!-- Nomes aparecem aqui -->
-        </div>
+        <div class="colab-list" id="listaAdminColaboradores"></div>
 
-        <button class="btn-close-modal" onclick="toggleModal(false)">Concluir</button>
+        <button onclick="toggleModal(false)" style="width: 100%; padding: 12px; margin-top: 15px; border: none; border-radius: 10px; background: #eee; font-weight: 600; cursor: pointer;">Concluir</button>
     </div>
 </div>
 
@@ -184,8 +170,8 @@
     let colaboradores = ["Edenildo Rodrigues", "Joelcinei Guimarães", "Matheus Costa", "Juenisson Belem", "Cezar Prado", "Ezequiel Silva", "Lucas Anjos"];
     let equipeSelecionada = [];
 
-    if (localStorage.getItem('tecnicos_v8')) {
-        colaboradores = JSON.parse(localStorage.getItem('tecnicos_v8'));
+    if (localStorage.getItem('tecnicos_v12')) {
+        colaboradores = JSON.parse(localStorage.getItem('tecnicos_v12'));
     }
 
     function atualizarSelect() {
@@ -202,17 +188,11 @@
         const list = document.getElementById('listaAdminColaboradores');
         list.innerHTML = '';
         colaboradores.sort().forEach(nome => {
-            list.innerHTML += `
-                <div class="colab-item">
-                    <span>${nome}</span>
-                    <button class="btn-del" onclick="excluirColaborador('${nome}')">Remover</button>
-                </div>`;
+            list.innerHTML += `<div class="colab-item"><span>${nome}</span><button class="btn-del" onclick="excluirColaborador('${nome}')">Remover</button></div>`;
         });
     }
 
-    function toggleModal(show) {
-        document.getElementById('modalEquipe').style.display = show ? 'flex' : 'none';
-    }
+    function toggleModal(show) { document.getElementById('modalEquipe').style.display = show ? 'flex' : 'none'; }
 
     function adicionarColaborador() {
         const select = document.getElementById('selectColaboradores');
@@ -243,16 +223,16 @@
         const n = document.getElementById('novoNome').value.trim();
         if (n) { 
             colaboradores.push(n); 
-            localStorage.setItem('tecnicos_v8', JSON.stringify(colaboradores)); 
+            localStorage.setItem('tecnicos_v12', JSON.stringify(colaboradores)); 
             atualizarSelect(); 
             document.getElementById('novoNome').value = ''; 
         }
     }
 
     function excluirColaborador(nome) {
-        if(confirm(`Remover ${nome} da lista definitiva?`)) {
+        if(confirm(`Remover ${nome}?`)) {
             colaboradores = colaboradores.filter(n => n !== nome);
-            localStorage.setItem('tecnicos_v8', JSON.stringify(colaboradores));
+            localStorage.setItem('tecnicos_v12', JSON.stringify(colaboradores));
             atualizarSelect();
         }
     }
@@ -268,29 +248,41 @@
         if (equipeSelecionada.length === 0) { alert("Adicione pelo menos um técnico!"); return; }
         if (!form.checkValidity()) { form.reportValidity(); return; }
 
-        const dados = {
+        const d = {
             atividade: document.getElementById('atividade').value,
             data: document.getElementById('data_auto').value,
             hora: document.getElementById('hora_auto').value,
-            chamado: document.getElementById('chamado').value,
-            equipe: equipeSelecionada.join(', '),
+            // Converte para maiúsculo apenas no envio para padronizar o relatório
+            chamado: document.getElementById('chamado').value.toUpperCase(),
+            equipe: equipeSelecionada.join('%0A'), 
             site: document.getElementById('site').value,
             local: document.getElementById('local').value,
             status: document.getElementById('status').value,
             obs: document.getElementById('comentarios').value
         };
 
+        const sep = "----------------------------------------";
+
         const mensagem = `*RELATÓRIO DE MANUTENÇÃO CFTV*%0A` +
-            `----------------------------------------%0A%0A` +
-            `*Atividade:*%0A${dados.atividade}%0A%0A` +
-            `*Data:*%0A${dados.data}%0A%0A` +
-            `*Hora:*%0A${dados.hora}%0A%0A` +
-            `*Nº Chamado:*%0A${dados.chamado}%0A%0A` +
-            `*Colaboradores:*%0A${dados.equipe}%0A%0A` +
-            `*Site:*%0A${dados.site}%0A%0A` +
-            `*Local:*%0A${dados.local}%0A%0A` +
-            `*Status:*%0A${dados.status}%0A%0A` +
-            `*Comentários:*%0A${dados.obs}`;
+            `${sep}%0A%0A` +
+            `*Atividade:*%0A${d.atividade}%0A` +
+            `${sep}%0A` +
+            `*Data:*%0A${d.data}%0A` +
+            `${sep}%0A` +
+            `*Hora:*%0A${d.hora}%0A` +
+            `${sep}%0A` +
+            `*Nº Chamado:*%0A${d.chamado}%0A` +
+            `${sep}%0A` +
+            `*Colaboradores:*%0A${d.equipe}%0A` +
+            `${sep}%0A` +
+            `*Site:*%0A${d.site}%0A` +
+            `${sep}%0A` +
+            `*Local:*%0A${d.local}%0A` +
+            `${sep}%0A` +
+            `*Status:*%0A${d.status}%0A` +
+            `${sep}%0A` +
+            `*Comentários:*%0A${d.obs}%0A` +
+            `${sep}`;
 
         window.open(`https://api.whatsapp.com/send?text=${mensagem}`, '_blank');
         
