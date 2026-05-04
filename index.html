@@ -5,22 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Relatório Técnico - Telejur</title>
     <style>
-        :root { --primary: #0056b3; --admin: #2c3e50; --bg: #f4f7f6; }
-        body { font-family: sans-serif; background: var(--bg); padding: 15px; margin: 0; }
+        :root { --primary: #0056b3; --bg: #f4f7f6; --text: #333; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; }
         .container { max-width: 500px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin: auto; }
-        h2 { color: var(--primary); text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+        h2 { color: var(--primary); text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-top: 0; }
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-        .colab-list { background: #eee; padding: 10px; border-radius: 8px; max-height: 150px; overflow-y: auto; }
-        .colab-item { display: flex; align-items: center; margin-bottom: 8px; font-size: 0.9rem; }
-        .colab-item input { width: auto; margin-right: 10px; transform: scale(1.3); }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; background: #fff; }
+        .equipe-badge-container { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+        .badge { background: #e0e0e0; padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; display: flex; align-items: center; }
+        .badge span { margin-left: 8px; cursor: pointer; font-weight: bold; color: red; }
         button { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        
-        /* Painel Admin */
-        .admin-section { margin-top: 30px; border-top: 2px dashed #ccc; padding-top: 20px; display: none; }
-        .admin-btn { background: var(--admin); font-size: 0.8rem; padding: 8px; margin-top: 20px; }
-        .badge-admin { background: #eee; color: #666; text-align: center; font-size: 0.7rem; cursor: pointer; margin-top: 40px; }
+        .admin-section { margin-top: 25px; border-top: 1px dashed #ccc; padding-top: 15px; display: none; background: #f9f9f9; padding: 10px; border-radius: 8px; }
+        .btn-admin-toggle { background: none; color: #999; font-size: 0.7rem; border: none; width: auto; margin: 20px auto 0; display: block; text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -46,22 +43,27 @@
         </div>
 
         <div class="form-group">
-            <label>Colaboradores (Selecione um ou mais):</label>
-            <div class="colab-list" id="listaColaboradores">
-                <!-- Nomes gerados via JS -->
-            </div>
-            <!-- Campo oculto para enviar os nomes selecionados ao Formspree -->
-            <input type="hidden" name="colaboradores_selecionados" id="colabFinal">
+            <label>Selecionar Colaboradores (Clique para adicionar):</label>
+            <select id="selectColaboradores" onchange="adicionarColaborador()">
+                <option value="">Selecione um nome...</option>
+                <!-- Nomes via JS -->
+            </select>
+            <div class="equipe-badge-container" id="badgesEquipe"></div>
+            <!-- Campo oculto que envia a lista final ao Formspree -->
+            <input type="hidden" name="equipe_final" id="equipe_final">
         </div>
 
         <div style="display: flex; gap: 10px;">
             <div class="form-group" style="flex:1">
                 <label>Site:</label>
-                <input type="text" name="site" required>
+                <select name="site" required>
+                    <option value="JPO">JPO</option>
+                    <option value="JBE">JBE</option>
+                </select>
             </div>
             <div class="form-group" style="flex:1">
                 <label>Local:</label>
-                <input type="text" name="local">
+                <input type="text" name="local" placeholder="Ex: Galpão A">
             </div>
         </div>
 
@@ -85,71 +87,78 @@
         <button type="submit" onclick="prepararEnvio()">Enviar Relatório</button>
     </form>
 
-    <div class="badge-admin" onclick="toggleAdmin()">⚙️ Painel de Colaboradores</div>
+    <button class="btn-admin-toggle" onclick="document.getElementById('adminPanel').style.display='block'">⚙️ Gerenciar Nomes</button>
 
     <div class="admin-section" id="adminPanel">
-        <label>Adicionar Novo Colaborador:</label>
+        <label>Novo Colaborador:</label>
         <div style="display: flex; gap: 5px;">
-            <input type="text" id="novoNome" placeholder="Nome completo">
-            <button class="admin-btn" style="width: 80px; margin: 0;" onclick="addColaborador()">Add</button>
+            <input type="text" id="novoNome">
+            <button onclick="addNovoColab()" style="padding: 10px; width: 80px; font-size: 0.8rem; margin: 0;">Add</button>
         </div>
-        <p style="font-size: 0.7rem; color: #666;">*As alterações ficam salvas neste navegador.</p>
+        <button onclick="document.getElementById('adminPanel').style.display='none'" style="background:#666; font-size: 0.7rem; padding: 5px; margin-top: 10px;">Fechar</button>
     </div>
 </div>
 
 <script>
-    // Lista inicial (Baseada na sua solicitação)
-    let colaboradores = [
-        "Edenildo Rodrigues", "Joelcinei Guimarães", "Matheus Costa", 
-        "Juenisson Belem", "Cezar Prado", "Ezequiel Silva", "Lucas Anjos"
-    ];
+    let colaboradores = ["Edenildo Rodrigues", "Joelcinei Guimarães", "Matheus Costa", "Juenisson Belem", "Cezar Prado", "Ezequiel Silva", "Lucas Anjos"];
+    let equipeSelecionada = [];
 
-    // Carregar dados salvos ou usar lista padrão
-    if (localStorage.getItem('listaTecnicos')) {
-        colaboradores = JSON.parse(localStorage.getItem('listaTecnicos'));
+    if (localStorage.getItem('tecnicos_v2')) {
+        colaboradores = JSON.parse(localStorage.getItem('tecnicos_v2'));
     }
 
-    function renderizarColaboradores() {
-        const div = document.getElementById('listaColaboradores');
-        div.innerHTML = '';
-        colaboradores.forEach((nome, index) => {
-            div.innerHTML += `
-                <div class="colab-item">
-                    <input type="checkbox" value="${nome}" class="check-colab"> ${nome}
-                </div>`;
+    function atualizarSelect() {
+        const select = document.getElementById('selectColaboradores');
+        select.innerHTML = '<option value="">Selecione um nome...</option>';
+        colaboradores.sort().forEach(nome => {
+            select.innerHTML += `<option value="${nome}">${nome}</option>`;
         });
     }
 
-    function addColaborador() {
-        const nome = document.getElementById('novoNome').value;
-        if (nome) {
-            colaboradores.push(nome);
-            localStorage.setItem('listaTecnicos', JSON.stringify(colaboradores));
-            renderizarColaboradores();
-            document.getElementById('novoNome').value = '';
+    function adicionarColaborador() {
+        const select = document.getElementById('selectColaboradores');
+        const nome = select.value;
+        if (nome && !equipeSelecionada.includes(nome)) {
+            equipeSelecionada.push(nome);
+            renderBadges();
+        }
+        select.value = "";
+    }
+
+    function removerColaborador(nome) {
+        equipeSelecionada = equipeSelecionada.filter(n => n !== nome);
+        renderBadges();
+    }
+
+    function renderBadges() {
+        const container = document.getElementById('badgesEquipe');
+        container.innerHTML = '';
+        equipeSelecionada.forEach(nome => {
+            container.innerHTML += `<div class="badge">${nome}<span onclick="removerColaborador('${nome}')">×</span></div>`;
+        });
+    }
+
+    function addNovoColab() {
+        const input = document.getElementById('novoNome');
+        if (input.value) {
+            colaboradores.push(input.value);
+            localStorage.setItem('tecnicos_v2', JSON.stringify(colaboradores));
+            atualizarSelect();
+            input.value = '';
         }
     }
 
-    function toggleAdmin() {
-        const panel = document.getElementById('adminPanel');
-        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function atualizarDataHora() {
-        const agora = new Date();
-        const dataFormatada = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-        document.getElementById('data_hora').value = dataFormatada;
-    }
-
     function prepararEnvio() {
-        // Pega todos os checkboxes marcados e joga no campo oculto
-        const selecionados = Array.from(document.querySelectorAll('.check-colab:checked')).map(cb => cb.value);
-        document.getElementById('colabFinal').value = selecionados.join(', ');
+        document.getElementById('equipe_final').value = equipeSelecionada.join(', ');
     }
 
-    // Inicialização
-    atualizarDataHora();
-    renderizarColaboradores();
+    function init() {
+        const agora = new Date();
+        document.getElementById('data_hora').value = agora.toLocaleDateString('pt-BR') + ' ' + agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+        atualizarSelect();
+    }
+
+    init();
 </script>
 
 </body>
