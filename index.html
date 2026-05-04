@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Manutenção CFTV - Telejur</title>
+    <title>Sistema de Manutenção - Telejur</title>
     <style>
         :root { 
             --primary: #25d366; 
             --primary-dark: #128c7e;
+            --telecom: #007bff;
+            --telecom-dark: #0056b3;
             --danger: #ff4d4d; 
             --bg: #f0f2f5; 
             --text: #1c1e21; 
@@ -18,196 +20,208 @@
         body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; }
         .container { max-width: 500px; background: var(--white); padding: 25px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); margin: auto; }
         
-        h2 { color: var(--primary-dark); text-align: center; margin-bottom: 25px; font-weight: 700; }
+        /* Menu Principal */
+        #menuPrincipal { text-align: center; display: block; }
+        .btn-menu { 
+            width: 100%; padding: 20px; margin: 10px 0; border: none; border-radius: 12px; 
+            font-size: 1.2rem; font-weight: 700; cursor: pointer; color: white; transition: transform 0.2s;
+        }
+        .btn-cftv { background: var(--primary); }
+        .btn-telecom { background: var(--telecom); }
+        .btn-menu:active { transform: scale(0.98); }
+
+        /* Formulários */
+        #formContainer { display: none; }
+        .header-form { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .btn-voltar { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #606770; }
+        
+        h2 { color: var(--primary-dark); margin: 0; font-weight: 700; }
+        .telecom-theme h2 { color: var(--telecom-dark); }
+        .telecom-theme .btn-whatsapp { background: var(--telecom); }
+
         .form-group { margin-bottom: 18px; }
         label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: #606770; }
         
         input, select, textarea { 
             width: 100%; padding: 12px; border: 1.5px solid #dddfe2; border-radius: 10px; 
-            font-size: 16px; box-sizing: border-box; transition: border-color 0.2s;
+            font-size: 16px; box-sizing: border-box; 
         }
-        input:focus { border-color: var(--primary); outline: none; }
-        input:invalid { border-color: var(--danger); }
 
         .equipe-badge-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
         .badge { 
             background: #e7f3ff; color: #1877f2; padding: 6px 14px; border-radius: 50px; 
             font-size: 0.85rem; display: flex; align-items: center; font-weight: 600; 
         }
-        .badge span { margin-left: 8px; cursor: pointer; color: #1877f2; font-size: 1.2rem; }
+        .badge span { margin-left: 8px; cursor: pointer; }
 
         .btn-whatsapp { 
             background: var(--primary); color: white; border: none; padding: 16px; border-radius: 10px; 
             width: 100%; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 15px;
-            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
         }
 
+        /* Modal Admin */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);
             display: none; justify-content: center; align-items: center; z-index: 1000;
         }
-        .modal-content {
-            background: var(--white); width: 90%; max-width: 400px; padding: 20px;
-            border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            animation: slideUp 0.3s ease-out;
-        }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .add-box { display: flex; gap: 8px; margin-bottom: 20px; }
-        .colab-list { max-height: 250px; overflow-y: auto; }
-        .colab-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px; background: var(--gray-light); border-radius: 10px;
-            margin-bottom: 8px; font-size: 0.95rem; font-weight: 500;
-        }
-        .btn-del { color: var(--danger); background: none; border: none; cursor: pointer; font-weight: bold; }
-
-        .btn-admin-open { 
-            background: none; color: #8a8d91; font-size: 0.85rem; border: none; 
-            margin: 25px auto 0; display: block; cursor: pointer; text-decoration: underline; 
-        }
-        option:disabled { color: #bcc0c4; }
+        .modal-content { background: var(--white); width: 90%; max-width: 400px; padding: 20px; border-radius: 20px; }
+        .colab-item { display: flex; justify-content: space-between; padding: 10px; background: var(--gray-light); margin-bottom: 5px; border-radius: 8px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Manutenção CFTV</h2>
-    
-    <form id="cftvForm">
-        <div class="form-group">
-            <label>Atividade:</label>
-            <input type="text" id="atividade" placeholder="Ex: Limpeza de camera" required>
-        </div>
+    <!-- SELEÇÃO INICIAL -->
+    <div id="menuPrincipal">
+        <h2>Selecione o Departamento</h2>
+        <p style="color: #606770; margin-bottom: 30px;">Qual equipe está operando agora?</p>
+        <button class="btn-menu btn-cftv" onclick="abrirFormulario('CFTV')">🛡️ EQUIPE CFTV</button>
+        <button class="btn-menu btn-telecom" onclick="abrirFormulario('TELECOM')">📡 EQUIPE TELECOM</button>
+    </div>
 
-        <div style="display: flex; gap: 10px;">
-            <div class="form-group" style="flex:1">
-                <label>Data:</label>
-                <input type="text" id="data_auto" readonly required>
+    <!-- FORMULÁRIO ÚNICO DINÂMICO -->
+    <div id="formContainer">
+        <div class="header-form">
+            <button class="btn-voltar" onclick="voltarMenu()">❮</button>
+            <h2 id="tituloForm">Manutenção</h2>
+            <div style="width: 30px;"></div>
+        </div>
+        
+        <form id="mainForm">
+            <input type="hidden" id="tipo_servico">
+            
+            <div class="form-group">
+                <label>Atividade:</label>
+                <input type="text" id="atividade" placeholder="Ex: Fusão de fibra / Troca de câmera" required>
             </div>
-            <div class="form-group" style="flex:1">
-                <label>Hora:</label>
-                <input type="text" id="hora_auto" readonly required>
+
+            <div style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex:1"><label>Data:</label><input type="text" id="data_auto" readonly></div>
+                <div class="form-group" style="flex:1"><label>Hora:</label><input type="text" id="hora_auto" readonly></div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label>Nº Chamado:</label>
-            <input type="text" id="chamado" placeholder="Ex: inc1234567" 
-                   pattern="^([iI][nN][cC]\d{7}|[sS][cC][tT][aA][sS][kK]\d{7})$" 
-                   title="Inicie com INC ou SCTASK + 7 números." required>
-        </div>
+            <div class="form-group">
+                <label>Nº Chamado:</label>
+                <input type="text" id="chamado" placeholder="INC ou SCTASK + 7 números" pattern="^([iI][nN][cC]\d{7}|[sS][cC][tT][aA][sS][kK]\d{7})$" required>
+            </div>
 
-        <div class="form-group">
-            <label>Equipe Técnica (Mínimo 1):</label>
-            <select id="selectColaboradores" onchange="adicionarColaborador()">
-                <option value="">Selecione para adicionar...</option>
-            </select>
-            <div class="equipe-badge-container" id="badgesEquipe"></div>
-        </div>
+            <div class="form-group">
+                <label>Equipe Técnica:</label>
+                <select id="selectColaboradores" onchange="adicionarColaborador()"></select>
+                <div class="equipe-badge-container" id="badgesEquipe"></div>
+            </div>
 
-        <div style="display: flex; gap: 10px;">
-            <div class="form-group" style="flex:1">
-                <label>Site:</label>
-                <select id="site" required>
-                    <option value="">Selecione...</option>
-                    <option value="JPO">JPO</option>
-                    <option value="JBE">JBE</option>
+            <div style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex:1">
+                    <label>Site:</label>
+                    <select id="site" required>
+                        <option value="">Selecione...</option>
+                        <option value="JPO">JPO</option>
+                        <option value="JBE">JBE</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex:1">
+                    <label>Local:</label>
+                    <input type="text" id="local" placeholder="Ex: Rack Piso 2" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Utilizou SkyMunck?</label>
+                <select id="skymunck" required><option value="Não">Não</option><option value="Sim">Sim</option></select>
+            </div>
+
+            <div class="form-group">
+                <label>Status:</label>
+                <select id="status" required>
+                    <option value="Concluído">✅ Concluído</option>
+                    <option value="Pendente">⚠️ Pendente</option>
+                    <option value="Em Andamento">⏳ Em Andamento</option>
                 </select>
             </div>
-            <div class="form-group" style="flex:1">
-                <label>Local:</label>
-                <input type="text" id="local" placeholder="Ex: Portaria" required>
+
+            <div class="form-group">
+                <label>Comentários (Opcional):</label>
+                <textarea id="comentarios" rows="3"></textarea>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label>Utilizou SkyMunck?</label>
-            <select id="skymunck" required>
-                <option value="Não">Não</option>
-                <option value="Sim">Sim</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Status:</label>
-            <select id="status" required>
-                <option value="">Selecione o estado...</option>
-                <option value="Concluído">✅ Concluído</option>
-                <option value="Pendente">⚠️ Pendente</option>
-                <option value="Em Andamento">⏳ Em Andamento</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Comentários (Opcional):</label>
-            <textarea id="comentarios" rows="3" placeholder="Observações importantes..."></textarea>
-        </div>
-
-        <button type="button" class="btn-whatsapp" onclick="enviarRelatorio()">
-            ENVIAR RELATÓRIO
-        </button>
-    </form>
-
-    <button class="btn-admin-open" onclick="toggleModal(true)">⚙️ Gerenciar Nomes da Equipe</button>
+            <button type="button" class="btn-whatsapp" onclick="enviarTudo()">ENVIAR RELATÓRIO</button>
+        </form>
+        <button class="btn-admin-open" style="background:none; border:none; color:#8a8d91; width:100%; margin-top:20px; cursor:pointer;" onclick="toggleModal(true)">⚙️ Gerenciar Equipe <span id="labelEquipe"></span></button>
+    </div>
 </div>
 
+<!-- MODAL ADMIN -->
 <div class="modal-overlay" id="modalEquipe">
     <div class="modal-content">
-        <div class="admin-header">
-            <h3>Gerenciar Equipe</h3>
-            <button onclick="toggleModal(false)" style="background:none; border:none; font-size: 1.5rem; cursor:pointer;">&times;</button>
+        <h3>Gerenciar Técnicos</h3>
+        <div style="display:flex; gap:5px; margin-bottom:15px;">
+            <input type="text" id="novoNome" placeholder="Novo nome">
+            <button onclick="addNovoColab()" style="background:var(--primary-dark); color:white; border:none; border-radius:8px; padding:10px;">ADD</button>
         </div>
-        <div class="add-box">
-            <input type="text" id="novoNome" placeholder="Nome do colaborador">
-            <button onclick="addNovoColab()" style="background: var(--primary-dark); color: white; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer;">ADD</button>
-        </div>
-        <div class="colab-list" id="listaAdminColaboradores"></div>
-        <button onclick="toggleModal(false)" style="width: 100%; padding: 12px; margin-top: 15px; border: none; border-radius: 10px; background: #eee; font-weight: 600; cursor: pointer;">Concluir</button>
+        <div id="listaAdminColaboradores" style="max-height:200px; overflow-y:auto;"></div>
+        <button onclick="toggleModal(false)" style="width:100%; padding:12px; margin-top:15px; border:none; border-radius:10px; background:#eee; font-weight:600;">Fechar</button>
     </div>
 </div>
 
 <script>
-    const URL_GOOGLE_SHEETS = "https://script.google.com/macros/s/AKfycbznxOMvEwie2epxU9xOw4Wzudc6n-skaGv4E34A37FWSXFtZu2ckhvP5zFkh1Vv3WWE/exec";
+    const URL_SHEETS = "https://script.google.com/macros/s/AKfycbznxOMvEwie2epxU9xOw4Wzudc6n-skaGv4E34A37FWSXFtZu2ckhvP5zFkh1Vv3WWE/exec";
+    
+    // Listas separadas
+    let bancos = {
+        'CFTV': ["Edenildo Rodrigues", "Joelcinei Guimarães", "Matheus Costa", "Juenisson Belem"],
+        'TELECOM': ["Deivison Aleidson", "Walter", "Lafaiete Batista", "Reginaldo Pereira"]
+    };
 
-    let colaboradores = ["Edenildo Rodrigues", "Joelcinei Guimarães", "Matheus Costa", "Juenisson Belem", "Cezar Prado", "Ezequiel Silva", "Lucas Anjos"];
+    let servicoAtual = '';
     let equipeSelecionada = [];
 
-    if (localStorage.getItem('tecnicos_v15')) {
-        colaboradores = JSON.parse(localStorage.getItem('tecnicos_v15'));
+    // Carregar do cache
+    if (localStorage.getItem('banco_equipes')) {
+        bancos = JSON.parse(localStorage.getItem('banco_equipes'));
+    }
+
+    function abrirFormulario(tipo) {
+        servicoAtual = tipo;
+        document.getElementById('tipo_servico').value = tipo;
+        document.getElementById('menuPrincipal').style.display = 'none';
+        document.getElementById('formContainer').style.display = 'block';
+        document.getElementById('tituloForm').innerText = `Manutenção ${tipo}`;
+        document.getElementById('labelEquipe').innerText = tipo;
+        
+        // Estilo visual
+        document.body.className = (tipo === 'TELECOM') ? 'telecom-theme' : '';
+        
+        atualizarDataHora();
+        atualizarSelect();
+        renderBadges();
+    }
+
+    function voltarMenu() {
+        document.getElementById('menuPrincipal').style.display = 'block';
+        document.getElementById('formContainer').style.display = 'none';
+        equipeSelecionada = [];
     }
 
     function atualizarSelect() {
         const select = document.getElementById('selectColaboradores');
         select.innerHTML = '<option value="">Selecione para adicionar...</option>';
-        colaboradores.sort().forEach(nome => {
-            const isSelected = equipeSelecionada.includes(nome);
-            select.innerHTML += `<option value="${nome}" ${isSelected ? 'disabled' : ''}>${nome} ${isSelected ? '✔' : ''}</option>`;
+        bancos[servicoAtual].sort().forEach(nome => {
+            const isSel = equipeSelecionada.includes(nome);
+            select.innerHTML += `<option value="${nome}" ${isSel ? 'disabled' : ''}>${nome} ${isSel ? '✔' : ''}</option>`;
         });
         renderizarListaAdmin();
     }
 
-    function renderizarListaAdmin() {
-        const list = document.getElementById('listaAdminColaboradores');
-        list.innerHTML = '';
-        colaboradores.sort().forEach(nome => {
-            list.innerHTML += `<div class="colab-item"><span>${nome}</span><button class="btn-del" onclick="excluirColaborador('${nome}')">Remover</button></div>`;
-        });
-    }
-
-    function toggleModal(show) { document.getElementById('modalEquipe').style.display = show ? 'flex' : 'none'; }
-
     function adicionarColaborador() {
-        const select = document.getElementById('selectColaboradores');
-        const nome = select.value;
-        if (nome && !equipeSelecionada.includes(nome)) {
-            equipeSelecionada.push(nome);
+        const sel = document.getElementById('selectColaboradores');
+        if (sel.value) {
+            equipeSelecionada.push(sel.value);
             renderBadges();
             atualizarSelect();
         }
-        select.value = "";
+        sel.value = "";
     }
 
     function removerBadge(nome) {
@@ -218,29 +232,31 @@
 
     function renderBadges() {
         const container = document.getElementById('badgesEquipe');
-        container.innerHTML = '';
-        equipeSelecionada.forEach(nome => {
-            container.innerHTML += `<div class="badge">${nome}<span onclick="removerBadge('${nome}')">&times;</span></div>`;
-        });
+        container.innerHTML = equipeSelecionada.map(nome => `<div class="badge">${nome}<span onclick="removerBadge('${nome}')"> &times;</span></div>`).join('');
     }
 
     function addNovoColab() {
         const n = document.getElementById('novoNome').value.trim();
-        if (n) { 
-            colaboradores.push(n); 
-            localStorage.setItem('tecnicos_v15', JSON.stringify(colaboradores)); 
-            atualizarSelect(); 
-            document.getElementById('novoNome').value = ''; 
+        if (n) {
+            bancos[servicoAtual].push(n);
+            localStorage.setItem('banco_equipes', JSON.stringify(bancos));
+            atualizarSelect();
+            document.getElementById('novoNome').value = '';
         }
     }
 
     function excluirColaborador(nome) {
-        if(confirm(`Remover ${nome}?`)) {
-            colaboradores = colaboradores.filter(n => n !== nome);
-            localStorage.setItem('tecnicos_v15', JSON.stringify(colaboradores));
-            atualizarSelect();
-        }
+        bancos[servicoAtual] = bancos[servicoAtual].filter(n => n !== nome);
+        localStorage.setItem('banco_equipes', JSON.stringify(bancos));
+        atualizarSelect();
     }
+
+    function renderizarListaAdmin() {
+        const list = document.getElementById('listaAdminColaboradores');
+        list.innerHTML = bancos[servicoAtual].map(nome => `<div class="colab-item"><span>${nome}</span><button onclick="excluirColaborador('${nome}')" style="color:red; border:none; background:none;">Remover</button></div>`).join('');
+    }
+
+    function toggleModal(show) { document.getElementById('modalEquipe').style.display = show ? 'flex' : 'none'; }
 
     function atualizarDataHora() {
         const agora = new Date();
@@ -248,17 +264,18 @@
         document.getElementById('hora_auto').value = agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
     }
 
-    async function enviarRelatorio() {
-        const form = document.getElementById('cftvForm');
-        if (equipeSelecionada.length === 0) { alert("Adicione pelo menos um técnico!"); return; }
+    async function enviarTudo() {
+        const form = document.getElementById('mainForm');
+        if (equipeSelecionada.length === 0) { alert("Selecione a equipe!"); return; }
         if (!form.checkValidity()) { form.reportValidity(); return; }
 
         const d = {
+            tipo: servicoAtual,
             atividade: document.getElementById('atividade').value,
             data: document.getElementById('data_auto').value,
             hora: document.getElementById('hora_auto').value,
             chamado: document.getElementById('chamado').value.toUpperCase(),
-            equipe: equipeSelecionada.join('%0A'), 
+            equipe: equipeSelecionada.join('%0A'),
             site: document.getElementById('site').value,
             local: document.getElementById('local').value,
             skymunck: document.getElementById('skymunck').value,
@@ -266,54 +283,15 @@
             obs: document.getElementById('comentarios').value || "Nenhuma observação."
         };
 
-        // 1. ENVIO PARA O GOOGLE SHEETS
-        fetch(URL_GOOGLE_SHEETS, {
-            method: 'POST',
-            mode: 'no-cors',
-            cache: 'no-cache',
-            body: JSON.stringify(d)
-        }).catch(e => console.log("Erro Planilha: ", e));
+        // Envio Planilha
+        fetch(URL_SHEETS, { method: 'POST', mode: 'no-cors', body: JSON.stringify(d) });
 
-        // 2. MONTAGEM E ENVIO WHATSAPP
-        const sep = "----------------------------------------";
-        const mensagem = `*RELATÓRIO DE MANUTENÇÃO CFTV*%0A` +
-            `${sep}%0A%0A` +
-            `*Atividade:*%0A${d.atividade}%0A` +
-            `${sep}%0A` +
-            `*Data:*%0A${d.data}%0A` +
-            `${sep}%0A` +
-            `*Hora:*%0A${d.hora}%0A` +
-            `${sep}%0A` +
-            `*Nº Chamado:*%0A${d.chamado}%0A` +
-            `${sep}%0A` +
-            `*Colaboradores:*%0A${d.equipe}%0A` +
-            `${sep}%0A` +
-            `*Site:*%0A${d.site}%0A` +
-            `${sep}%0A` +
-            `*Local:*%0A${d.local}%0A` +
-            `${sep}%0A` +
-            `*Utilização SkyMunck:*%0A${d.skymunck}%0A` +
-            `${sep}%0A` +
-            `*Status:*%0A${d.status}%0A` +
-            `${sep}%0A` +
-            `*Comentários:*%0A${d.obs}%0A` +
-            `${sep}`;
-
-        window.open(`https://api.whatsapp.com/send?text=${mensagem}`, '_blank');
+        // Whatsapp
+        const msg = `*RELATÓRIO ${d.tipo}*%0A------------------%0A*Atividade:* ${d.atividade}%0A*Chamado:* ${d.chamado}%0A*Equipe:*%0A${d.equipe}%0A*Local:* ${d.site} - ${d.local}%0A*Status:* ${d.status}`;
+        window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
         
-        setTimeout(() => {
-            form.reset();
-            equipeSelecionada = [];
-            renderBadges();
-            atualizarSelect();
-            atualizarDataHora();
-        }, 1000);
+        setTimeout(() => { location.reload(); }, 1000);
     }
-
-    window.onload = function() {
-        atualizarDataHora();
-        atualizarSelect();
-    };
 </script>
 </body>
 </html>
