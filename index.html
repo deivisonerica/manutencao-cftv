@@ -3,125 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sistema Telejur</title>
+    <title>ATIVIDADE DO DIA - Telejur</title>
     <style>
-        :root { --primary: #25d366; --telecom: #007bff; --bg: #f0f2f5; --white: #ffffff; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 15px; margin: 0; }
+        :root { 
+            --primary: #25d366; 
+            --primary-dark: #128c7e;
+            --danger: #ff4d4d; 
+            --bg: #f0f2f5; 
+            --text: #1c1e21; 
+            --white: #ffffff;
+            --gray-light: #f5f6f7;
+        }
+        
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; }
         .container { max-width: 500px; background: var(--white); padding: 25px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); margin: auto; }
-        #menuPrincipal { text-align: center; }
-        .btn-menu { width: 100%; padding: 20px; margin: 10px 0; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: 700; cursor: pointer; color: white; }
-        .btn-cftv { background: var(--primary); }
-        .btn-telecom { background: var(--telecom); }
-        #formContainer { display: none; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box; }
-        .badge-container { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
-        .badge { background: #e7f3ff; color: #1877f2; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
-        .btn-enviar { background: var(--primary); color: white; border: none; padding: 16px; border-radius: 10px; width: 100%; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 10px; }
-        .telecom-theme .btn-enviar { background: var(--telecom); }
+        
+        h2 { color: var(--primary-dark); text-align: center; margin-bottom: 25px; font-weight: 700; }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: #606770; }
+        
+        input, select, textarea { 
+            width: 100%; padding: 12px; border: 1.5px solid #dddfe2; border-radius: 10px; 
+            font-size: 16px; box-sizing: border-box; transition: border-color 0.2s;
+        }
+        input:focus { border-color: var(--primary); outline: none; }
+        input:invalid { border-color: var(--danger); }
+
+        .equipe-badge-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+        .badge { 
+            background: #e7f3ff; color: #1877f2; padding: 6px 14px; border-radius: 50px; 
+            font-size: 0.85rem; display: flex; align-items: center; font-weight: 600; 
+        }
+        .badge span { margin-left: 8px; cursor: pointer; color: #1877f2; font-size: 1.2rem; }
+
+        .btn-whatsapp { 
+            background: var(--primary); color: white; border: none; padding: 16px; border-radius: 10px; 
+            width: 100%; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 15px;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+        }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-content {
+            background: var(--white); width: 90%; max-width: 400px; padding: 20px;
+            border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .add-box { display: flex; gap: 8px; margin-bottom: 20px; }
+        .colab-list { max-height: 250px; overflow-y: auto; }
+        .colab-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px; background: var(--gray-light); border-radius: 10px;
+            margin-bottom: 8px; font-size: 0.95rem; font-weight: 500;
+        }
+        .btn-del { color: var(--danger); background: none; border: none; cursor: pointer; font-weight: bold; }
+
+        .btn-admin-open { 
+            background: none; color: #8a8d91; font-size: 0.85rem; border: none; 
+            margin: 25px auto 0; display: block; cursor: pointer; text-decoration: underline; 
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div id="menuPrincipal">
-        <h2>Selecione a Equipe</h2>
-        <button class="btn-menu btn-cftv" onclick="abrirForm('CFTV')">EQUIPE CFTV</button>
-        <button class="btn-menu btn-telecom" onclick="abrirForm('TELECOM')">EQUIPE TELECOM</button>
-    </div>
+    <h2>ATIVIDADE DO DIA</h2>
+    
+    <form id="cftvForm">
+        <div class="form-group">
+            <label>Atividade:</label>
+            <input type="text" id="atividade" placeholder="Ex: Manutenção Preventiva" required>
+        </div>
 
-    <div id="formContainer">
-        <h2 id="tituloForm">Relatório</h2>
-        <form id="mainForm">
-            <div class="form-group">
-                <label>Atividade:</label>
-                <input type="text" id="atividade" required>
+        <div style="display: flex; gap: 10px;">
+            <div class="form-group" style="flex:1">
+                <label>Data:</label>
+                <input type="text" id="data_auto" readonly required>
             </div>
-            <div style="display: flex; gap: 10px;">
-                <div class="form-group" style="flex:1"><label>Data:</label><input type="text" id="data_auto" readonly></div>
-                <div class="form-group" style="flex:1"><label>Hora:</label><input type="text" id="hora_auto" readonly></div>
+            <div class="form-group" style="flex:1">
+                <label>Hora:</label>
+                <input type="text" id="hora_auto" readonly required>
             </div>
-            <div class="form-group">
-                <label>Nº Chamado:</label>
-                <input type="text" id="chamado" required>
+        </div>
+
+        <div class="form-group">
+            <label>Nº Chamado:</label>
+            <input type="text" id="chamado" placeholder="Ex: INC1234567" 
+                   pattern="^([iI][nN][cC]\d{7}|[sS][cC][tT][aA][sS][kK]\d{7})$" 
+                   title="Inicie com INC ou SCTASK + 7 números." required>
+        </div>
+
+        <div class="form-group">
+            <label>Equipe Técnica (Mínimo 1):</label>
+            <select id="selectColaboradores" onchange="adicionarColaborador()">
+                <option value="">Selecione para adicionar...</option>
+            </select>
+            <div class="equipe-badge-container" id="badgesEquipe"></div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <div class="form-group" style="flex:1">
+                <label>Site:</label>
+                <select id="site" required>
+                    <option value="">Selecione...</option>
+                    <option value="JPO">JPO</option>
+                    <option value="JBE">JBE</option>
+                </select>
             </div>
-            <div class="form-group">
-                <label>Adicionar Colaborador:</label>
-                <select id="selectColaboradores" onchange="addTecnico()"></select>
-                <div class="badge-container" id="badgesEquipe"></div>
+            <div class="form-group" style="flex:1">
+                <label>Local:</label>
+                <input type="text" id="local" placeholder="Ex: Portaria" required>
             </div>
-            <div style="display: flex; gap: 10px;">
-                <div class="form-group" style="flex:1"><label>Site:</label><select id="site"><option value="JPO">JPO</option><option value="JBE">JBE</option></select></div>
-                <div class="form-group" style="flex:1"><label>Local:</label><input type="text" id="local" required></div>
-            </div>
-            <div class="form-group">
-                <label>Utilização SkyMunck:</label>
-                <select id="skymunck"><option value="Não">Não</option><option value="Sim">Sim</option></select>
-            </div>
-            <div class="form-group">
-                <label>Status:</label>
-                <select id="status"><option value="Concluído">Concluído</option><option value="Pendente">Pendente</option><option value="Em Andamento">Em Andamento</option></select>
-            </div>
-            <div class="form-group">
-                <label>Comentários:</label>
-                <textarea id="comentarios" rows="2"></textarea>
-            </div>
-            <button type="button" class="btn-enviar" onclick="enviarRelatorio()">ENVIAR RELATÓRIO</button>
-            <button type="button" onclick="location.reload()" style="width:100%; background:none; border:none; color:gray; margin-top:10px; cursor:pointer;">Voltar ao Menu</button>
-        </form>
+        </div>
+
+        <div class="form-group">
+            <label>Utilizou SkyMunck?</label>
+            <select id="skymunck" required>
+                <option value="Não">Não</option>
+                <option value="Sim">Sim</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Status:</label>
+            <select id="status" required>
+                <option value="">Selecione o estado...</option>
+                <option value="Concluído">✅ Concluído</option>
+                <option value="Pendente">⚠️ Pendente</option>
+                <option value="Em Andamento">⏳ Em Andamento</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Comentários (Opcional):</label>
+            <textarea id="comentarios" rows="3" placeholder="Observações importantes..."></textarea>
+        </div>
+
+        <button type="button" class="btn-whatsapp" onclick="enviarRelatorio()">
+            ENVIAR RELATÓRIO
+        </button>
+    </form>
+
+    <button class="btn-admin-open" onclick="toggleModal(true)">⚙️ Gerenciar Equipe</button>
+</div>
+
+<div class="modal-overlay" id="modalEquipe">
+    <div class="modal-content">
+        <div class="admin-header">
+            <h3>Gerenciar Equipe</h3>
+            <button onclick="toggleModal(false)" style="background:none; border:none; font-size: 1.5rem; cursor:pointer;">&times;</button>
+        </div>
+        <div class="add-box">
+            <input type="text" id="novoNome" placeholder="Nome do colaborador">
+            <button onclick="addNovoColab()" style="background: var(--primary-dark); color: white; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer;">ADD</button>
+        </div>
+        <div class="colab-list" id="listaAdminColaboradores"></div>
+        <button onclick="toggleModal(false)" style="width: 100%; padding: 12px; margin-top: 15px; border: none; border-radius: 10px; background: #eee; font-weight: 600; cursor: pointer;">Concluir</button>
     </div>
 </div>
 
 <script>
-    const URL_SHEETS = "https://script.google.com/macros/s/AKfycbznxOMvEwie2epxU9xOw4Wzudc6n-skaGv4E34A37FWSXFtZu2ckhvP5zFkh1Vv3WWE/exec";
-    
-    // Listas baseadas no histórico do usuário
-    const listas = {
-        'CFTV': ["Joelcinei Guimarães", "Edenildo Rodrigues", "Reginaldo Pereira", "Matheus Costa", "Juenisson Belem"],
-        'TELECOM': ["Deivison Aleidson", "Walter", "Lafaiete Batista", "Reginaldo Pereira", "Francivaldo", "Joelcinei Guimarães"]
-    };
+    const URL_GOOGLE_SHEETS = "https://script.google.com/macros/s/AKfycbznxOMvEwie2epxU9xOw4Wzudc6n-skaGv4E34A37FWSXFtZu2ckhvP5zFkh1Vv3WWE/exec";
 
-    let equipeAtual = '';
-    let selecionados = [];
+    let colaboradores = ["Edenildo Rodrigues", "Joelcinei Guimarães", "Reginaldo Pereira"]; // Lista baseada no seu histórico
+    let equipeSelecionada = [];
 
-    function abrirForm(tipo) {
-        equipeAtual = tipo;
-        document.getElementById('menuPrincipal').style.display = 'none';
-        document.getElementById('formContainer').style.display = 'block';
-        document.getElementById('tituloForm').innerText = "Relatório " + tipo;
-        document.body.className = tipo === 'TELECOM' ? 'telecom-theme' : '';
-        
-        const sel = document.getElementById('selectColaboradores');
-        sel.innerHTML = '<option value="">Selecione...</option>' + listas[tipo].map(n => `<option value="${n}">${n}</option>`).join('');
-        
-        const agora = new Date();
-        document.getElementById('data_auto').value = agora.toLocaleDateString('pt-BR');
-        document.getElementById('hora_auto').value = agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+    if (localStorage.getItem('tecnicos_v15')) {
+        colaboradores = JSON.parse(localStorage.getItem('tecnicos_v15'));
     }
 
-    function addTecnico() {
-        const val = document.getElementById('selectColaboradores').value;
-        if (val && !selecionados.includes(val)) {
-            selecionados.push(val);
+    function atualizarSelect() {
+        const select = document.getElementById('selectColaboradores');
+        select.innerHTML = '<option value="">Selecione para adicionar...</option>';
+        colaboradores.sort().forEach(nome => {
+            const isSelected = equipeSelecionada.includes(nome);
+            select.innerHTML += `<option value="${nome}" ${isSelected ? 'disabled' : ''}>${nome} ${isSelected ? '✔' : ''}</option>`;
+        });
+        renderizarListaAdmin();
+    }
+
+    function renderizarListaAdmin() {
+        const list = document.getElementById('listaAdminColaboradores');
+        list.innerHTML = '';
+        colaboradores.sort().forEach(nome => {
+            list.innerHTML += `<div class="colab-item"><span>${nome}</span><button class="btn-del" onclick="excluirColaborador('${nome}')">Remover</button></div>`;
+        });
+    }
+
+    function toggleModal(show) { document.getElementById('modalEquipe').style.display = show ? 'flex' : 'none'; }
+
+    function adicionarColaborador() {
+        const select = document.getElementById('selectColaboradores');
+        const nome = select.value;
+        if (nome && !equipeSelecionada.includes(nome)) {
+            equipeSelecionada.push(nome);
             renderBadges();
+            atualizarSelect();
         }
+        select.value = "";
+    }
+
+    function removerBadge(nome) {
+        equipeSelecionada = equipeSelecionada.filter(n => n !== nome);
+        renderBadges();
+        atualizarSelect();
     }
 
     function renderBadges() {
-        document.getElementById('badgesEquipe').innerHTML = selecionados.map(n => `<div class="badge">${n}</div>`).join('');
+        const container = document.getElementById('badgesEquipe');
+        container.innerHTML = '';
+        equipeSelecionada.forEach(nome => {
+            container.innerHTML += `<div class="badge">${nome}<span onclick="removerBadge('${nome}')">&times;</span></div>`;
+        });
+    }
+
+    function addNovoColab() {
+        const n = document.getElementById('novoNome').value.trim();
+        if (n) { 
+            colaboradores.push(n); 
+            localStorage.setItem('tecnicos_v15', JSON.stringify(colaboradores)); 
+            atualizarSelect(); 
+            document.getElementById('novoNome').value = ''; 
+        }
+    }
+
+    function excluirColaborador(nome) {
+        if(confirm(`Remover ${nome}?`)) {
+            colaboradores = colaboradores.filter(n => n !== nome);
+            localStorage.setItem('tecnicos_v15', JSON.stringify(colaboradores));
+            atualizarSelect();
+        }
+    }
+
+    function atualizarDataHora() {
+        const agora = new Date();
+        document.getElementById('data_auto').value = agora.toLocaleDateString('pt-BR');
+        document.getElementById('hora_auto').value = agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
     }
 
     async function enviarRelatorio() {
-        if (selecionados.length === 0) return alert("Selecione a equipe!");
-        
+        const form = document.getElementById('cftvForm');
+        if (equipeSelecionada.length === 0) { alert("Adicione pelo menos um técnico!"); return; }
+        if (!form.checkValidity()) { form.reportValidity(); return; }
+
         const d = {
-            tipo: equipeAtual,
+            tipo: "CFTV", // Campo fixo para a planilha
             atividade: document.getElementById('atividade').value,
             data: document.getElementById('data_auto').value,
             hora: document.getElementById('hora_auto').value,
             chamado: document.getElementById('chamado').value.toUpperCase(),
-            equipe: selecionados.join('\n'), // Quebra de linha simples para a planilha
+            equipe: equipeSelecionada.join('\n'), 
             site: document.getElementById('site').value,
             local: document.getElementById('local').value,
             skymunck: document.getElementById('skymunck').value,
@@ -129,28 +266,54 @@
             obs: document.getElementById('comentarios').value || "Nenhuma observação."
         };
 
-        // Envio para Planilha
-        fetch(URL_SHEETS, { method: 'POST', mode: 'no-cors', body: JSON.stringify(d) });
+        // 1. ENVIO PARA O GOOGLE SHEETS
+        fetch(URL_GOOGLE_SHEETS, {
+            method: 'POST',
+            mode: 'no-cors',
+            cache: 'no-cache',
+            body: JSON.stringify(d)
+        }).catch(e => console.log("Erro Planilha: ", e));
 
-        // Formatação WhatsApp (Exatamente como solicitado)
-        const divisor = "----------------------------------------";
-        const equipeWhats = selecionados.join('%0A'); // Codificação correta para o WhatsApp pular linha
+        // 2. MONTAGEM WHATSAPP
+        const sep = "----------------------------------------";
+        const mensagem = `*ATIVIDADE DO DIA*%0A` +
+            `${sep}%0A%0A` +
+            `*Atividade:*%0A${d.atividade}%0A` +
+            `${sep}%0A` +
+            `*Data:*%0A${d.data}%0A` +
+            `${sep}%0A` +
+            `*Hora:*%0A${d.hora}%0A` +
+            `${sep}%0A` +
+            `*Nº Chamado:*%0A${d.chamado}%0A` +
+            `${sep}%0A` +
+            `*Colaboradores:*%0A${encodeURIComponent(d.equipe)}%0A` +
+            `${sep}%0A` +
+            `*Site:*%0A${d.site}%0A` +
+            `${sep}%0A` +
+            `*Local:*%0A${d.local}%0A` +
+            `${sep}%0A` +
+            `*Utilização SkyMunck:*%0A${d.skymunck}%0A` +
+            `${sep}%0A` +
+            `*Status:*%0A${d.status}%0A` +
+            `${sep}%0A` +
+            `*Comentários:*%0A${d.obs}%0A` +
+            `${sep}`;
+
+        window.open(`https://api.whatsapp.com/send?text=${mensagem}`, '_blank');
         
-        const msg = `*RELATÓRIO DE MANUTENÇÃO ${d.tipo}*%0A${divisor}%0A%0A` +
-                    `*Atividade:*%0A${d.atividade}%0A${divisor}%0A` +
-                    `*Data:*%0A${d.data}%0A${divisor}%0A` +
-                    `*Hora:*%0A${d.hora}%0A${divisor}%0A` +
-                    `*Nº Chamado:*%0A${d.chamado}%0A${divisor}%0A` +
-                    `*Colaboradores:*%0A${equipeWhats}%0A${divisor}%0A` +
-                    `*Site:*%0A${d.site}%0A${divisor}%0A` +
-                    `*Local:*%0A${d.local}%0A${divisor}%0A` +
-                    `*Utilização SkyMunck:*%0A${d.skymunck}%0A${divisor}%0A` +
-                    `*Status:*%0A${d.status}%0A${divisor}%0A` +
-                    `*Comentários:*%0A${d.obs}%0A${divisor}`;
-
-        window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
-        setTimeout(() => location.reload(), 1000);
+        setTimeout(() => {
+            form.reset();
+            equipeSelecionada = [];
+            renderBadges();
+            atualizarSelect();
+            atualizarDataHora();
+        }, 1000);
     }
+
+    window.onload = function() {
+        atualizarDataHora();
+        atualizarSelect();
+    };
 </script>
 </body>
 </html>
