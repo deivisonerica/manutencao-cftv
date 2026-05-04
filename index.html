@@ -3,279 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sistema de Manutenção - Telejur</title>
+    <title>Sistema Telejur</title>
     <style>
-        :root { 
-            --primary: #25d366; 
-            --primary-dark: #128c7e;
-            --telecom: #007bff;
-            --telecom-dark: #0056b3;
-            --danger: #ff4d4d; 
-            --bg: #f0f2f5; 
-            --text: #1c1e21; 
-            --white: #ffffff;
-            --gray-light: #f5f6f7;
-        }
-        
-        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; }
+        :root { --primary: #25d366; --telecom: #007bff; --bg: #f0f2f5; --white: #ffffff; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 15px; margin: 0; }
         .container { max-width: 500px; background: var(--white); padding: 25px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); margin: auto; }
-        
-        /* Menu Principal */
-        #menuPrincipal { text-align: center; display: block; }
-        .btn-menu { 
-            width: 100%; padding: 20px; margin: 10px 0; border: none; border-radius: 12px; 
-            font-size: 1.2rem; font-weight: 700; cursor: pointer; color: white; transition: transform 0.2s;
-        }
+        #menuPrincipal { text-align: center; }
+        .btn-menu { width: 100%; padding: 20px; margin: 10px 0; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: 700; cursor: pointer; color: white; }
         .btn-cftv { background: var(--primary); }
         .btn-telecom { background: var(--telecom); }
-        .btn-menu:active { transform: scale(0.98); }
-
-        /* Formulários */
         #formContainer { display: none; }
-        .header-form { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-        .btn-voltar { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #606770; }
-        
-        h2 { color: var(--primary-dark); margin: 0; font-weight: 700; }
-        .telecom-theme h2 { color: var(--telecom-dark); }
-        .telecom-theme .btn-whatsapp { background: var(--telecom); }
-
-        .form-group { margin-bottom: 18px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: #606770; }
-        
-        input, select, textarea { 
-            width: 100%; padding: 12px; border: 1.5px solid #dddfe2; border-radius: 10px; 
-            font-size: 16px; box-sizing: border-box; 
-        }
-
-        .equipe-badge-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-        .badge { 
-            background: #e7f3ff; color: #1877f2; padding: 6px 14px; border-radius: 50px; 
-            font-size: 0.85rem; display: flex; align-items: center; font-weight: 600; 
-        }
-        .badge span { margin-left: 8px; cursor: pointer; }
-
-        .btn-whatsapp { 
-            background: var(--primary); color: white; border: none; padding: 16px; border-radius: 10px; 
-            width: 100%; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 15px;
-        }
-
-        /* Modal Admin */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);
-            display: none; justify-content: center; align-items: center; z-index: 1000;
-        }
-        .modal-content { background: var(--white); width: 90%; max-width: 400px; padding: 20px; border-radius: 20px; }
-        .colab-item { display: flex; justify-content: space-between; padding: 10px; background: var(--gray-light); margin-bottom: 5px; border-radius: 8px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box; }
+        .badge-container { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+        .badge { background: #e7f3ff; color: #1877f2; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        .btn-enviar { background: var(--primary); color: white; border: none; padding: 16px; border-radius: 10px; width: 100%; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .telecom-theme .btn-enviar { background: var(--telecom); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- SELEÇÃO INICIAL -->
     <div id="menuPrincipal">
-        <h2>Selecione o Departamento</h2>
-        <p style="color: #606770; margin-bottom: 30px;">Qual equipe está operando agora?</p>
-        <button class="btn-menu btn-cftv" onclick="abrirFormulario('CFTV')">🛡️ EQUIPE CFTV</button>
-        <button class="btn-menu btn-telecom" onclick="abrirFormulario('TELECOM')">📡 EQUIPE TELECOM</button>
+        <h2>Selecione a Equipe</h2>
+        <button class="btn-menu btn-cftv" onclick="abrirForm('CFTV')">EQUIPE CFTV</button>
+        <button class="btn-menu btn-telecom" onclick="abrirForm('TELECOM')">EQUIPE TELECOM</button>
     </div>
 
-    <!-- FORMULÁRIO ÚNICO DINÂMICO -->
     <div id="formContainer">
-        <div class="header-form">
-            <button class="btn-voltar" onclick="voltarMenu()">❮</button>
-            <h2 id="tituloForm">Manutenção</h2>
-            <div style="width: 30px;"></div>
-        </div>
-        
+        <h2 id="tituloForm">Relatório</h2>
         <form id="mainForm">
-            <input type="hidden" id="tipo_servico">
-            
             <div class="form-group">
                 <label>Atividade:</label>
-                <input type="text" id="atividade" placeholder="Ex: Fusão de fibra / Troca de câmera" required>
+                <input type="text" id="atividade" required>
             </div>
-
             <div style="display: flex; gap: 10px;">
                 <div class="form-group" style="flex:1"><label>Data:</label><input type="text" id="data_auto" readonly></div>
                 <div class="form-group" style="flex:1"><label>Hora:</label><input type="text" id="hora_auto" readonly></div>
             </div>
-
             <div class="form-group">
                 <label>Nº Chamado:</label>
-                <input type="text" id="chamado" placeholder="INC ou SCTASK + 7 números" pattern="^([iI][nN][cC]\d{7}|[sS][cC][tT][aA][sS][kK]\d{7})$" required>
+                <input type="text" id="chamado" required>
             </div>
-
             <div class="form-group">
-                <label>Equipe Técnica:</label>
-                <select id="selectColaboradores" onchange="adicionarColaborador()"></select>
-                <div class="equipe-badge-container" id="badgesEquipe"></div>
+                <label>Adicionar Colaborador:</label>
+                <select id="selectColaboradores" onchange="addTecnico()"></select>
+                <div class="badge-container" id="badgesEquipe"></div>
             </div>
-
             <div style="display: flex; gap: 10px;">
-                <div class="form-group" style="flex:1">
-                    <label>Site:</label>
-                    <select id="site" required>
-                        <option value="">Selecione...</option>
-                        <option value="JPO">JPO</option>
-                        <option value="JBE">JBE</option>
-                    </select>
-                </div>
-                <div class="form-group" style="flex:1">
-                    <label>Local:</label>
-                    <input type="text" id="local" placeholder="Ex: Rack Piso 2" required>
-                </div>
+                <div class="form-group" style="flex:1"><label>Site:</label><select id="site"><option value="JPO">JPO</option><option value="JBE">JBE</option></select></div>
+                <div class="form-group" style="flex:1"><label>Local:</label><input type="text" id="local" required></div>
             </div>
-
             <div class="form-group">
-                <label>Utilizou SkyMunck?</label>
-                <select id="skymunck" required><option value="Não">Não</option><option value="Sim">Sim</option></select>
+                <label>Utilização SkyMunck:</label>
+                <select id="skymunck"><option value="Não">Não</option><option value="Sim">Sim</option></select>
             </div>
-
             <div class="form-group">
                 <label>Status:</label>
-                <select id="status" required>
-                    <option value="Concluído">✅ Concluído</option>
-                    <option value="Pendente">⚠️ Pendente</option>
-                    <option value="Em Andamento">⏳ Em Andamento</option>
-                </select>
+                <select id="status"><option value="Concluído">Concluído</option><option value="Pendente">Pendente</option><option value="Em Andamento">Em Andamento</option></select>
             </div>
-
             <div class="form-group">
-                <label>Comentários (Opcional):</label>
-                <textarea id="comentarios" rows="3"></textarea>
+                <label>Comentários:</label>
+                <textarea id="comentarios" rows="2"></textarea>
             </div>
-
-            <button type="button" class="btn-whatsapp" onclick="enviarTudo()">ENVIAR RELATÓRIO</button>
+            <button type="button" class="btn-enviar" onclick="enviarRelatorio()">ENVIAR RELATÓRIO</button>
+            <button type="button" onclick="location.reload()" style="width:100%; background:none; border:none; color:gray; margin-top:10px; cursor:pointer;">Voltar ao Menu</button>
         </form>
-        <button class="btn-admin-open" style="background:none; border:none; color:#8a8d91; width:100%; margin-top:20px; cursor:pointer;" onclick="toggleModal(true)">⚙️ Gerenciar Equipe <span id="labelEquipe"></span></button>
-    </div>
-</div>
-
-<!-- MODAL ADMIN -->
-<div class="modal-overlay" id="modalEquipe">
-    <div class="modal-content">
-        <h3>Gerenciar Técnicos</h3>
-        <div style="display:flex; gap:5px; margin-bottom:15px;">
-            <input type="text" id="novoNome" placeholder="Novo nome">
-            <button onclick="addNovoColab()" style="background:var(--primary-dark); color:white; border:none; border-radius:8px; padding:10px;">ADD</button>
-        </div>
-        <div id="listaAdminColaboradores" style="max-height:200px; overflow-y:auto;"></div>
-        <button onclick="toggleModal(false)" style="width:100%; padding:12px; margin-top:15px; border:none; border-radius:10px; background:#eee; font-weight:600;">Fechar</button>
     </div>
 </div>
 
 <script>
     const URL_SHEETS = "https://script.google.com/macros/s/AKfycbznxOMvEwie2epxU9xOw4Wzudc6n-skaGv4E34A37FWSXFtZu2ckhvP5zFkh1Vv3WWE/exec";
     
-    // Listas separadas
-    let bancos = {
-        'CFTV': ["Edenildo Rodrigues", "Joelcinei Guimarães", "Matheus Costa", "Juenisson Belem"],
-        'TELECOM': ["Deivison Aleidson", "Walter", "Lafaiete Batista", "Reginaldo Pereira"]
+    // Listas baseadas no histórico do usuário
+    const listas = {
+        'CFTV': ["Joelcinei Guimarães", "Edenildo Rodrigues", "Reginaldo Pereira", "Matheus Costa", "Juenisson Belem"],
+        'TELECOM': ["Deivison Aleidson", "Walter", "Lafaiete Batista", "Reginaldo Pereira", "Francivaldo", "Joelcinei Guimarães"]
     };
 
-    let servicoAtual = '';
-    let equipeSelecionada = [];
+    let equipeAtual = '';
+    let selecionados = [];
 
-    // Carregar do cache
-    if (localStorage.getItem('banco_equipes')) {
-        bancos = JSON.parse(localStorage.getItem('banco_equipes'));
-    }
-
-    function abrirFormulario(tipo) {
-        servicoAtual = tipo;
-        document.getElementById('tipo_servico').value = tipo;
+    function abrirForm(tipo) {
+        equipeAtual = tipo;
         document.getElementById('menuPrincipal').style.display = 'none';
         document.getElementById('formContainer').style.display = 'block';
-        document.getElementById('tituloForm').innerText = `Manutenção ${tipo}`;
-        document.getElementById('labelEquipe').innerText = tipo;
+        document.getElementById('tituloForm').innerText = "Relatório " + tipo;
+        document.body.className = tipo === 'TELECOM' ? 'telecom-theme' : '';
         
-        // Estilo visual
-        document.body.className = (tipo === 'TELECOM') ? 'telecom-theme' : '';
-        
-        atualizarDataHora();
-        atualizarSelect();
-        renderBadges();
-    }
-
-    function voltarMenu() {
-        document.getElementById('menuPrincipal').style.display = 'block';
-        document.getElementById('formContainer').style.display = 'none';
-        equipeSelecionada = [];
-    }
-
-    function atualizarSelect() {
-        const select = document.getElementById('selectColaboradores');
-        select.innerHTML = '<option value="">Selecione para adicionar...</option>';
-        bancos[servicoAtual].sort().forEach(nome => {
-            const isSel = equipeSelecionada.includes(nome);
-            select.innerHTML += `<option value="${nome}" ${isSel ? 'disabled' : ''}>${nome} ${isSel ? '✔' : ''}</option>`;
-        });
-        renderizarListaAdmin();
-    }
-
-    function adicionarColaborador() {
         const sel = document.getElementById('selectColaboradores');
-        if (sel.value) {
-            equipeSelecionada.push(sel.value);
-            renderBadges();
-            atualizarSelect();
-        }
-        sel.value = "";
+        sel.innerHTML = '<option value="">Selecione...</option>' + listas[tipo].map(n => `<option value="${n}">${n}</option>`).join('');
+        
+        const agora = new Date();
+        document.getElementById('data_auto').value = agora.toLocaleDateString('pt-BR');
+        document.getElementById('hora_auto').value = agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
     }
 
-    function removerBadge(nome) {
-        equipeSelecionada = equipeSelecionada.filter(n => n !== nome);
-        renderBadges();
-        atualizarSelect();
+    function addTecnico() {
+        const val = document.getElementById('selectColaboradores').value;
+        if (val && !selecionados.includes(val)) {
+            selecionados.push(val);
+            renderBadges();
+        }
     }
 
     function renderBadges() {
-        const container = document.getElementById('badgesEquipe');
-        container.innerHTML = equipeSelecionada.map(nome => `<div class="badge">${nome}<span onclick="removerBadge('${nome}')"> &times;</span></div>`).join('');
+        document.getElementById('badgesEquipe').innerHTML = selecionados.map(n => `<div class="badge">${n}</div>`).join('');
     }
 
-    function addNovoColab() {
-        const n = document.getElementById('novoNome').value.trim();
-        if (n) {
-            bancos[servicoAtual].push(n);
-            localStorage.setItem('banco_equipes', JSON.stringify(bancos));
-            atualizarSelect();
-            document.getElementById('novoNome').value = '';
-        }
-    }
-
-    function excluirColaborador(nome) {
-        bancos[servicoAtual] = bancos[servicoAtual].filter(n => n !== nome);
-        localStorage.setItem('banco_equipes', JSON.stringify(bancos));
-        atualizarSelect();
-    }
-
-    function renderizarListaAdmin() {
-        const list = document.getElementById('listaAdminColaboradores');
-        list.innerHTML = bancos[servicoAtual].map(nome => `<div class="colab-item"><span>${nome}</span><button onclick="excluirColaborador('${nome}')" style="color:red; border:none; background:none;">Remover</button></div>`).join('');
-    }
-
-    function toggleModal(show) { document.getElementById('modalEquipe').style.display = show ? 'flex' : 'none'; }
-
-    function atualizarDataHora() {
-        const agora = new Date();
-        document.getElementById('data_auto').value = agora.toLocaleDateString('pt-BR');
-        document.getElementById('hora_auto').value = agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-    }
-
-    async function enviarTudo() {
-        const form = document.getElementById('mainForm');
-        if (equipeSelecionada.length === 0) { alert("Selecione a equipe!"); return; }
-        if (!form.checkValidity()) { form.reportValidity(); return; }
-
+    async function enviarRelatorio() {
+        if (selecionados.length === 0) return alert("Selecione a equipe!");
+        
         const d = {
-            tipo: servicoAtual,
+            tipo: equipeAtual,
             atividade: document.getElementById('atividade').value,
             data: document.getElementById('data_auto').value,
             hora: document.getElementById('hora_auto').value,
             chamado: document.getElementById('chamado').value.toUpperCase(),
-            equipe: equipeSelecionada.join('%0A'),
+            equipe: selecionados.join('\n'), // Quebra de linha simples para a planilha
             site: document.getElementById('site').value,
             local: document.getElementById('local').value,
             skymunck: document.getElementById('skymunck').value,
@@ -283,14 +129,27 @@
             obs: document.getElementById('comentarios').value || "Nenhuma observação."
         };
 
-        // Envio Planilha
+        // Envio para Planilha
         fetch(URL_SHEETS, { method: 'POST', mode: 'no-cors', body: JSON.stringify(d) });
 
-        // Whatsapp
-        const msg = `*RELATÓRIO ${d.tipo}*%0A------------------%0A*Atividade:* ${d.atividade}%0A*Chamado:* ${d.chamado}%0A*Equipe:*%0A${d.equipe}%0A*Local:* ${d.site} - ${d.local}%0A*Status:* ${d.status}`;
-        window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+        // Formatação WhatsApp (Exatamente como solicitado)
+        const divisor = "----------------------------------------";
+        const equipeWhats = selecionados.join('%0A'); // Codificação correta para o WhatsApp pular linha
         
-        setTimeout(() => { location.reload(); }, 1000);
+        const msg = `*RELATÓRIO DE MANUTENÇÃO ${d.tipo}*%0A${divisor}%0A%0A` +
+                    `*Atividade:*%0A${d.atividade}%0A${divisor}%0A` +
+                    `*Data:*%0A${d.data}%0A${divisor}%0A` +
+                    `*Hora:*%0A${d.hora}%0A${divisor}%0A` +
+                    `*Nº Chamado:*%0A${d.chamado}%0A${divisor}%0A` +
+                    `*Colaboradores:*%0A${equipeWhats}%0A${divisor}%0A` +
+                    `*Site:*%0A${d.site}%0A${divisor}%0A` +
+                    `*Local:*%0A${d.local}%0A${divisor}%0A` +
+                    `*Utilização SkyMunck:*%0A${d.skymunck}%0A${divisor}%0A` +
+                    `*Status:*%0A${d.status}%0A${divisor}%0A` +
+                    `*Comentários:*%0A${d.obs}%0A${divisor}`;
+
+        window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+        setTimeout(() => location.reload(), 1000);
     }
 </script>
 </body>
