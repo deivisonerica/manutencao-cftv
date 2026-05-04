@@ -96,10 +96,9 @@
 
         <div class="form-group">
             <label>Nº Chamado:</label>
-            <!-- Regex atualizada para [iI][nN][cC] e [sS][cC][tT][aA][sS][kK] -->
             <input type="text" id="chamado" placeholder="Ex: inc1234567" 
                    pattern="^([iI][nN][cC]\d{7}|[sS][cC][tT][aA][sS][kK]\d{7})$" 
-                   title="Inicie com INC ou SCTASK (maiúsculo ou minúsculo) + 7 números." required>
+                   title="Inicie com INC ou SCTASK + 7 números." required>
         </div>
 
         <div class="form-group">
@@ -126,6 +125,14 @@
         </div>
 
         <div class="form-group">
+            <label>Utilizou SkyMunck?</label>
+            <select id="skymunck" required>
+                <option value="Não">Não</option>
+                <option value="Sim">Sim</option>
+            </select>
+        </div>
+
+        <div class="form-group">
             <label>Status:</label>
             <select id="status" required>
                 <option value="">Selecione o estado...</option>
@@ -136,8 +143,8 @@
         </div>
 
         <div class="form-group">
-            <label>Comentários:</label>
-            <textarea id="comentarios" rows="3" placeholder="Observações importantes..." required></textarea>
+            <label>Comentários (Opcional):</label>
+            <textarea id="comentarios" rows="3" placeholder="Observações importantes..."></textarea>
         </div>
 
         <button type="button" class="btn-whatsapp" onclick="enviarWhatsApp()">
@@ -170,8 +177,8 @@
     let colaboradores = ["Edenildo Rodrigues", "Joelcinei Guimarães", "Matheus Costa", "Juenisson Belem", "Cezar Prado", "Ezequiel Silva", "Lucas Anjos"];
     let equipeSelecionada = [];
 
-    if (localStorage.getItem('tecnicos_v12')) {
-        colaboradores = JSON.parse(localStorage.getItem('tecnicos_v12'));
+    if (localStorage.getItem('tecnicos_v13')) {
+        colaboradores = JSON.parse(localStorage.getItem('tecnicos_v13'));
     }
 
     function atualizarSelect() {
@@ -223,7 +230,7 @@
         const n = document.getElementById('novoNome').value.trim();
         if (n) { 
             colaboradores.push(n); 
-            localStorage.setItem('tecnicos_v12', JSON.stringify(colaboradores)); 
+            localStorage.setItem('tecnicos_v13', JSON.stringify(colaboradores)); 
             atualizarSelect(); 
             document.getElementById('novoNome').value = ''; 
         }
@@ -232,7 +239,7 @@
     function excluirColaborador(nome) {
         if(confirm(`Remover ${nome}?`)) {
             colaboradores = colaboradores.filter(n => n !== nome);
-            localStorage.setItem('tecnicos_v12', JSON.stringify(colaboradores));
+            localStorage.setItem('tecnicos_v13', JSON.stringify(colaboradores));
             atualizarSelect();
         }
     }
@@ -252,13 +259,13 @@
             atividade: document.getElementById('atividade').value,
             data: document.getElementById('data_auto').value,
             hora: document.getElementById('hora_auto').value,
-            // Converte para maiúsculo apenas no envio para padronizar o relatório
             chamado: document.getElementById('chamado').value.toUpperCase(),
             equipe: equipeSelecionada.join('%0A'), 
             site: document.getElementById('site').value,
             local: document.getElementById('local').value,
+            skymunck: document.getElementById('skymunck').value,
             status: document.getElementById('status').value,
-            obs: document.getElementById('comentarios').value
+            obs: document.getElementById('comentarios').value || "Nenhuma observação."
         };
 
         const sep = "----------------------------------------";
@@ -278,6 +285,8 @@
             `*Site:*%0A${d.site}%0A` +
             `${sep}%0A` +
             `*Local:*%0A${d.local}%0A` +
+            `${sep}%0A` +
+            `*Utilização SkyMunck:*%0A${d.skymunck}%0A` +
             `${sep}%0A` +
             `*Status:*%0A${d.status}%0A` +
             `${sep}%0A` +
