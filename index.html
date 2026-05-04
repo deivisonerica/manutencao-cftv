@@ -5,23 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Manutenção CFTV - Telejur</title>
     <style>
-        :root { --primary: #25d366; --danger: #dc3545; --bg: #f4f7f6; --text: #333; }
+        :root { --primary: #25d366; --danger: #dc3545; --bg: #f4f7f6; --text: #333; --disabled: #ccc; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; }
         .container { max-width: 500px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin: auto; }
         h2 { color: #128c7e; text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-top: 0; }
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem; }
         input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; background: #fff; }
-        
-        /* Visualização de quem já foi selecionado */
+        input:invalid { border-color: var(--danger); }
         .equipe-badge-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; min-height: 20px; }
         .badge { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; display: flex; align-items: center; font-weight: 500; }
         .badge span { margin-left: 10px; cursor: pointer; font-weight: bold; color: var(--danger); font-size: 1.1rem; }
-        
         .btn-whatsapp { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .admin-section { margin-top: 25px; border-top: 2px dashed #ccc; padding-top: 15px; display: none; }
         .admin-list-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
         .btn-admin-toggle { background: none; color: #999; font-size: 0.7rem; border: none; width: auto; margin: 20px auto 0; display: block; text-decoration: underline; cursor: pointer; }
+        option:disabled { color: var(--disabled); background-color: #f0f0f0; }
     </style>
 </head>
 <body>
@@ -38,45 +37,48 @@
         <div style="display: flex; gap: 10px;">
             <div class="form-group" style="flex:1">
                 <label>Data:</label>
-                <input type="text" id="data_auto" readonly>
+                <input type="text" id="data_auto" readonly required>
             </div>
             <div class="form-group" style="flex:1">
                 <label>Hora:</label>
-                <input type="text" id="hora_auto" readonly>
+                <input type="text" id="hora_auto" readonly required>
             </div>
         </div>
 
         <div class="form-group">
-            <label>Nº Chamado:</label>
-            <input type="text" id="chamado" placeholder="Ex: INC/SCTAK">
+            <label>Nº Chamado (INC + 7 dígitos ou SCTASK + 7 dígitos):</label>
+            <!-- Validação Regex: INC + 7 números OU SCTASK + 7 números -->
+            <input type="text" id="chamado" placeholder="Ex: INC1234567" 
+                   pattern="^(INC\d{7}|SCTASK\d{7})$" 
+                   title="Deve iniciar com INC ou SCTASK seguido de exatamente 7 números." required>
         </div>
 
         <div class="form-group">
-            <label>Colaboradores (Selecione para adicionar):</label>
+            <label>Colaboradores (Mínimo 1):</label>
             <select id="selectColaboradores" onchange="adicionarColaborador()">
                 <option value="">Selecione um nome...</option>
             </select>
-            <!-- Mostra quem já foi selecionado -->
             <div class="equipe-badge-container" id="badgesEquipe"></div>
         </div>
 
         <div style="display: flex; gap: 10px;">
             <div class="form-group" style="flex:1">
                 <label>Site:</label>
-                <select id="site">
+                <select id="site" required>
+                    <option value="">Selecione...</option>
                     <option value="JPO">JPO</option>
                     <option value="JBE">JBE</option>
                 </select>
             </div>
             <div class="form-group" style="flex:1">
                 <label>Local:</label>
-                <input type="text" id="local" placeholder="Ex: Portaria">
+                <input type="text" id="local" placeholder="Ex: Portaria" required>
             </div>
         </div>
 
         <div class="form-group">
             <label>Utilização do SkyMunck:</label>
-            <select id="skymunck">
+            <select id="skymunck" required>
                 <option value="Não Utilizado">Não Utilizado</option>
                 <option value="Utilizado">Utilizado</option>
             </select>
@@ -84,7 +86,8 @@
 
         <div class="form-group">
             <label>Status:</label>
-            <select id="status">
+            <select id="status" required>
+                <option value="">Selecione...</option>
                 <option value="Concluído">✅ Concluído</option>
                 <option value="Pendente">⚠️ Pendente</option>
                 <option value="Em Andamento">⏳ Em Andamento</option>
@@ -93,7 +96,7 @@
 
         <div class="form-group">
             <label>Comentários:</label>
-            <textarea id="comentarios" rows="3" placeholder="Detalhes técnicos..."></textarea>
+            <textarea id="comentarios" rows="3" placeholder="Detalhes técnicos..." required></textarea>
         </div>
 
         <button type="button" class="btn-whatsapp" onclick="enviarWhatsApp()">
@@ -104,7 +107,7 @@
     <button class="btn-admin-toggle" onclick="toggleAdmin()">⚙️ Gerenciar Equipe</button>
 
     <div class="admin-section" id="adminPanel">
-        <label>Adicionar Colaborador:</label>
+        <label>Novo Colaborador:</label>
         <div style="display: flex; gap: 5px; margin-bottom: 10px;">
             <input type="text" id="novoNome">
             <button onclick="addNovoColab()" style="padding: 10px; width: 60px;">OK</button>
@@ -118,16 +121,18 @@
     let colaboradores = ["Edenildo Rodrigues", "Joelcinei Guimarães", "Matheus Costa", "Juenisson Belem", "Cezar Prado", "Ezequiel Silva", "Lucas Anjos"];
     let equipeSelecionada = [];
 
-    // Persistência local da lista de nomes
-    if (localStorage.getItem('tecnicos_v5')) {
-        colaboradores = JSON.parse(localStorage.getItem('tecnicos_v5'));
+    if (localStorage.getItem('tecnicos_v6')) {
+        colaboradores = JSON.parse(localStorage.getItem('tecnicos_v6'));
     }
 
     function atualizarSelect() {
         const select = document.getElementById('selectColaboradores');
         select.innerHTML = '<option value="">Selecione um nome...</option>';
         colaboradores.sort().forEach(nome => {
-            select.innerHTML += `<option value="${nome}">${nome}</option>`;
+            const isSelected = equipeSelecionada.includes(nome);
+            const disabledAttr = isSelected ? 'disabled' : '';
+            const styleAttr = isSelected ? 'style="color: #ccc; background: #f0f0f0;"' : '';
+            select.innerHTML += `<option value="${nome}" ${disabledAttr} ${styleAttr}>${nome} ${isSelected ? '(Selecionado)' : ''}</option>`;
         });
         renderizarListaAdmin();
     }
@@ -146,13 +151,15 @@
         if (nome && !equipeSelecionada.includes(nome)) {
             equipeSelecionada.push(nome);
             renderBadges();
+            atualizarSelect(); // Bloqueia o nome no select
         }
-        select.value = ""; // Reseta o select para permitir nova escolha
+        select.value = "";
     }
 
     function removerBadge(nome) {
         equipeSelecionada = equipeSelecionada.filter(n => n !== nome);
         renderBadges();
+        atualizarSelect(); // Desbloqueia o nome no select
     }
 
     function renderBadges() {
@@ -167,7 +174,7 @@
         const n = document.getElementById('novoNome').value.trim();
         if (n) { 
             colaboradores.push(n); 
-            localStorage.setItem('tecnicos_v5', JSON.stringify(colaboradores)); 
+            localStorage.setItem('tecnicos_v6', JSON.stringify(colaboradores)); 
             atualizarSelect(); 
             document.getElementById('novoNome').value = ''; 
         }
@@ -175,20 +182,13 @@
 
     function excluirColaborador(nome) {
         colaboradores = colaboradores.filter(n => n !== nome);
-        localStorage.setItem('tecnicos_v5', JSON.stringify(colaboradores));
+        localStorage.setItem('tecnicos_v6', JSON.stringify(colaboradores));
         atualizarSelect();
     }
 
     function toggleAdmin() {
         const p = document.getElementById('adminPanel');
         p.style.display = p.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function resetarFormulario() {
-        document.getElementById('cftvForm').reset();
-        equipeSelecionada = [];
-        renderBadges();
-        atualizarDataHora(); // Reatribui data/hora atuais após limpar
     }
 
     function atualizarDataHora() {
@@ -198,35 +198,55 @@
     }
 
     function enviarWhatsApp() {
-        const atividade = document.getElementById('atividade').value;
-        if (!atividade) { alert("Preencha a atividade!"); return; }
+        const form = document.getElementById('cftvForm');
+        
+        // Verificação de equipe mínima
+        if (equipeSelecionada.length === 0) {
+            alert("Selecione pelo menos um colaborador!");
+            return;
+        }
 
-        const data = document.getElementById('data_auto').value;
-        const hora = document.getElementById('hora_auto').value;
-        const chamado = document.getElementById('chamado').value || "Não informado";
-        const equipe = equipeSelecionada.join(', ') || "Não informada";
-        const site = document.getElementById('site').value;
-        const local = document.getElementById('local').value || "Não informado";
-        const skymunck = document.getElementById('skymunck').value;
-        const status = document.getElementById('status').value;
-        const obs = document.getElementById('comentarios').value || "Sem observações";
+        // Validação nativa do formulário (required e patterns)
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const dados = {
+            atividade: document.getElementById('atividade').value,
+            data: document.getElementById('data_auto').value,
+            hora: document.getElementById('hora_auto').value,
+            chamado: document.getElementById('chamado').value,
+            equipe: equipeSelecionada.join(', '),
+            site: document.getElementById('site').value,
+            local: document.getElementById('local').value,
+            skymunck: document.getElementById('skymunck').value,
+            status: document.getElementById('status').value,
+            obs: document.getElementById('comentarios').value
+        };
 
         const mensagem = `*RELATÓRIO DE MANUTENÇÃO CFTV*%0A%0A` +
-            `*Atividade:* ${atividade}%0A` +
-            `*Data:* ${data}%0A` +
-            `*Hora:* ${hora}%0A` +
-            `*Nº Chamado:* ${chamado}%0A` +
-            `*Colaboradores:* ${equipe}%0A` +
-            `*Site:* ${site}%0A` +
-            `*Local:* ${local}%0A` +
-            `*SkyMunck:* ${skymunck}%0A` +
-            `*Status:* ${status}%0A` +
-            `*Comentários:* ${obs}`;
+            `*Atividade:* ${dados.atividade}%0A` +
+            `*Data:* ${dados.data}%0A` +
+            `*Hora:* ${dados.hora}%0A` +
+            `*Nº Chamado:* ${dados.chamado}%0A` +
+            `*Colaboradores:* ${dados.equipe}%0A` +
+            `*Site:* ${dados.site}%0A` +
+            `*Local:* ${dados.local}%0A` +
+            `*SkyMunck:* ${dados.skymunck}%0A` +
+            `*Status:* ${dados.status}%0A` +
+            `*Comentários:* ${dados.obs}`;
 
         window.open(`https://api.whatsapp.com/send?text=${mensagem}`, '_blank');
         
-        // Limpa o formulário após 1 segundo para o técnico poder fazer outro chamado
-        setTimeout(resetarFormulario, 1000);
+        // Reset completo após o envio
+        setTimeout(() => {
+            form.reset();
+            equipeSelecionada = [];
+            renderBadges();
+            atualizarSelect();
+            atualizarDataHora();
+        }, 1000);
     }
 
     window.onload = function() {
