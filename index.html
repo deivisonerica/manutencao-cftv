@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Relatório Técnico - Telejur</title>
+    <title>Manutenção CFTV - Telejur</title>
     <style>
-        :root { --primary: #0056b3; --bg: #f4f7f6; --text: #333; }
+        :root { --primary: #0056b3; --danger: #dc3545; --bg: #f4f7f6; --text: #333; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; }
         .container { max-width: 500px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin: auto; }
         h2 { color: var(--primary); text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-top: 0; }
@@ -14,42 +14,50 @@
         input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; background: #fff; }
         .equipe-badge-container { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
         .badge { background: #e0e0e0; padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; display: flex; align-items: center; }
-        .badge span { margin-left: 8px; cursor: pointer; font-weight: bold; color: red; }
+        .badge span { margin-left: 8px; cursor: pointer; font-weight: bold; color: var(--danger); }
         button { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .admin-section { margin-top: 25px; border-top: 1px dashed #ccc; padding-top: 15px; display: none; background: #f9f9f9; padding: 10px; border-radius: 8px; }
+        
+        /* Estilos Admin */
+        .admin-section { margin-top: 25px; border-top: 2px dashed #ccc; padding-top: 15px; display: none; }
+        .admin-list-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        .btn-del { color: var(--danger); font-weight: bold; cursor: pointer; padding: 5px 10px; }
         .btn-admin-toggle { background: none; color: #999; font-size: 0.7rem; border: none; width: auto; margin: 20px auto 0; display: block; text-decoration: underline; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Manutenção e Atividades</h2>
+    <h2>Manutenção CFTV</h2>
     
     <form action="https://formspree.io/f/seu-id-aqui" method="POST" id="mainForm">
         
         <div class="form-group">
             <label>Atividade:</label>
-            <input type="text" name="atividade" placeholder="Ex: Manutenção CFTV" required>
+            <input type="text" name="atividade" placeholder="Ex: Ajuste de Câmeras" required>
         </div>
 
-        <div class="form-group">
-            <label>Data e Hora (Automático):</label>
-            <input type="text" name="data_hora" id="data_hora" readonly>
+        <div style="display: flex; gap: 10px;">
+            <div class="form-group" style="flex:1">
+                <label>Data:</label>
+                <input type="text" name="data" id="data_auto" readonly>
+            </div>
+            <div class="form-group" style="flex:1">
+                <label>Hora:</label>
+                <input type="text" name="hora" id="hora_auto" readonly>
+            </div>
         </div>
 
         <div class="form-group">
             <label>Nº Chamado:</label>
-            <input type="text" name="chamado" placeholder="0000/2026">
+            <input type="text" name="chamado" placeholder="Ex: INC/SCTAK">
         </div>
 
         <div class="form-group">
-            <label>Selecionar Colaboradores (Clique para adicionar):</label>
+            <label>Colaboradores (Selecione na lista):</label>
             <select id="selectColaboradores" onchange="adicionarColaborador()">
                 <option value="">Selecione um nome...</option>
-                <!-- Nomes via JS -->
             </select>
             <div class="equipe-badge-container" id="badgesEquipe"></div>
-            <!-- Campo oculto que envia a lista final ao Formspree -->
             <input type="hidden" name="equipe_final" id="equipe_final">
         </div>
 
@@ -63,7 +71,7 @@
             </div>
             <div class="form-group" style="flex:1">
                 <label>Local:</label>
-                <input type="text" name="local" placeholder="Ex: Galpão A">
+                <input type="text" name="local" placeholder="Ex: Portaria">
             </div>
         </div>
 
@@ -84,18 +92,27 @@
             </select>
         </div>
 
+        <div class="form-group">
+            <label>Comentários / Observações:</label>
+            <textarea name="comentarios" rows="3" placeholder="Descreva detalhes da manutenção..."></textarea>
+        </div>
+
         <button type="submit" onclick="prepararEnvio()">Enviar Relatório</button>
     </form>
 
-    <button class="btn-admin-toggle" onclick="document.getElementById('adminPanel').style.display='block'">⚙️ Gerenciar Nomes</button>
+    <button class="btn-admin-toggle" onclick="toggleAdmin()">⚙️ Gerenciar Equipe (Adicionar/Excluir)</button>
 
     <div class="admin-section" id="adminPanel">
         <label>Novo Colaborador:</label>
-        <div style="display: flex; gap: 5px;">
+        <div style="display: flex; gap: 5px; margin-bottom: 15px;">
             <input type="text" id="novoNome">
             <button onclick="addNovoColab()" style="padding: 10px; width: 80px; font-size: 0.8rem; margin: 0;">Add</button>
         </div>
-        <button onclick="document.getElementById('adminPanel').style.display='none'" style="background:#666; font-size: 0.7rem; padding: 5px; margin-top: 10px;">Fechar</button>
+        
+        <label>Lista Atual (Clique no X para remover):</label>
+        <div id="listaAdminColaboradores"></div>
+        
+        <button onclick="toggleAdmin()" style="background:#666; font-size: 0.8rem; padding: 10px; margin-top: 15px;">Fechar Painel</button>
     </div>
 </div>
 
@@ -103,8 +120,9 @@
     let colaboradores = ["Edenildo Rodrigues", "Joelcinei Guimarães", "Matheus Costa", "Juenisson Belem", "Cezar Prado", "Ezequiel Silva", "Lucas Anjos"];
     let equipeSelecionada = [];
 
-    if (localStorage.getItem('tecnicos_v2')) {
-        colaboradores = JSON.parse(localStorage.getItem('tecnicos_v2'));
+    // Carregar do cache se existir
+    if (localStorage.getItem('tecnicos_v3')) {
+        colaboradores = JSON.parse(localStorage.getItem('tecnicos_v3'));
     }
 
     function atualizarSelect() {
@@ -112,6 +130,18 @@
         select.innerHTML = '<option value="">Selecione um nome...</option>';
         colaboradores.sort().forEach(nome => {
             select.innerHTML += `<option value="${nome}">${nome}</option>`;
+        });
+        renderizarListaAdmin();
+    }
+
+    function renderizarListaAdmin() {
+        const list = document.getElementById('listaAdminColaboradores');
+        list.innerHTML = '';
+        colaboradores.sort().forEach(nome => {
+            list.innerHTML += `
+                <div class="admin-list-item">
+                    ${nome} <span class="btn-del" onclick="excluirColaborador('${nome}')">Excluir X</span>
+                </div>`;
         });
     }
 
@@ -125,7 +155,7 @@
         select.value = "";
     }
 
-    function removerColaborador(nome) {
+    function removerBadge(nome) {
         equipeSelecionada = equipeSelecionada.filter(n => n !== nome);
         renderBadges();
     }
@@ -134,18 +164,36 @@
         const container = document.getElementById('badgesEquipe');
         container.innerHTML = '';
         equipeSelecionada.forEach(nome => {
-            container.innerHTML += `<div class="badge">${nome}<span onclick="removerColaborador('${nome}')">×</span></div>`;
+            container.innerHTML += `<div class="badge">${nome}<span onclick="removerBadge('${nome}')">×</span></div>`;
         });
     }
 
     function addNovoColab() {
         const input = document.getElementById('novoNome');
-        if (input.value) {
-            colaboradores.push(input.value);
-            localStorage.setItem('tecnicos_v2', JSON.stringify(colaboradores));
-            atualizarSelect();
+        if (input.value.trim()) {
+            colaboradores.push(input.value.trim());
+            salvarEAtualizar();
             input.value = '';
         }
+    }
+
+    function excluirColaborador(nome) {
+        if(confirm(`Deseja excluir ${nome} da lista definitiva?`)) {
+            colaboradores = colaboradores.filter(n => n !== nome);
+            equipeSelecionada = equipeSelecionada.filter(n => n !== nome);
+            salvarEAtualizar();
+            renderBadges();
+        }
+    }
+
+    function salvarEAtualizar() {
+        localStorage.setItem('tecnicos_v3', JSON.stringify(colaboradores));
+        atualizarSelect();
+    }
+
+    function toggleAdmin() {
+        const p = document.getElementById('adminPanel');
+        p.style.display = p.style.display === 'block' ? 'none' : 'block';
     }
 
     function prepararEnvio() {
@@ -154,7 +202,8 @@
 
     function init() {
         const agora = new Date();
-        document.getElementById('data_hora').value = agora.toLocaleDateString('pt-BR') + ' ' + agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+        document.getElementById('data_auto').value = agora.toLocaleDateString('pt-BR');
+        document.getElementById('hora_auto').value = agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
         atualizarSelect();
     }
 
