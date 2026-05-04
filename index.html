@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Manutenção CFTV</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 20px; }
+        .container { max-width: 700px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: auto; }
+        h2 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .section { margin-bottom: 20px; padding: 15px; border: 1px solid #eee; border-radius: 5px; }
+        label { display: block; margin-top: 10px; font-weight: bold; color: #34495e; }
+        input[type="text"], input[type="date"], textarea, select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        .checkbox-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        button { background-color: #3498db; color: white; border: none; padding: 15px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; margin-top: 20px; }
+        button:hover { background-color: #2980b9; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Manutenção Preventiva/Corretiva CFTV</h2>
+    
+    <!-- Substitua o ID abaixo pelo seu ID do Formspree ou similar -->
+    <form action="https://formspree.io/f/seu-id-aqui" method="POST">
+        
+        <div class="section">
+            <h3>Informações Gerais</h3>
+            <label>Técnico Responsável:</label>
+            <input type="text" name="tecnico" required>
+            
+            <label>Cliente / Unidade:</label>
+            <input type="text" name="cliente" required>
+            
+            <label>Data da Visita:</label>
+            <input type="date" name="data" required>
+        </div>
+
+        <div class="section">
+            <h3>Checklist de Hardware</h3>
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="limpeza_lentes"> Limpeza de Lentes</label>
+                <label><input type="checkbox" name="focagem"> Ajuste de Foco</label>
+                <label><input type="checkbox" name="conectores"> Verificação de BNC/RJ45</label>
+                <label><input type="checkbox" name="fonte"> Teste de Fontes/Amperagem</label>
+                <label><input type="checkbox" name="hd_status"> Verificação de HD (Gravação)</label>
+                <label><input type="checkbox" name="nobreak"> Teste de Nobreak/Bateria</label>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>Estado do Sistema</h3>
+            <label>Total de Câmeras:</label>
+            <input type="text" name="total_cameras">
+            
+            <label>Câmeras Offline (IDs):</label>
+            <textarea name="cameras_offline" rows="2"></textarea>
+            
+            <label>Observações Técnicas:</label>
+            <textarea name="observacoes" rows="4" placeholder="Descreva as anomalias ou peças trocadas..."></textarea>
+        </div>
+
+        <button type="submit">Enviar Relatório</button>
+    </form>
+</div>
+
+</body>
+</html>
