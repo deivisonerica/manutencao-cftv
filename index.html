@@ -68,7 +68,6 @@
             background: none; color: #8a8d91; font-size: 0.85rem; border: none; 
             margin: 25px auto 0; display: block; cursor: pointer; text-decoration: underline; 
         }
-
         option:disabled { color: #bcc0c4; }
     </style>
 </head>
@@ -98,7 +97,7 @@
             <label>Nº Chamado:</label>
             <input type="text" id="chamado" placeholder="Ex: inc1234567" 
                    pattern="^([iI][nN][cC]\d{7}|[sS][cC][tT][aA][sS][kK]\d{7})$" 
-                   title="Inicie com INC ou SCTASK + 7 números." required>
+                   title="Inicie com INC ou SCTASK (maiúsculo ou minúsculo) + 7 números." required>
         </div>
 
         <div class="form-group">
@@ -147,7 +146,7 @@
             <textarea id="comentarios" rows="3" placeholder="Observações importantes..."></textarea>
         </div>
 
-        <button type="button" class="btn-whatsapp" onclick="enviarWhatsApp()">
+        <button type="button" class="btn-whatsapp" onclick="enviarRelatorio()">
             ENVIAR RELATÓRIO
         </button>
     </form>
@@ -161,24 +160,24 @@
             <h3>Gerenciar Equipe</h3>
             <button onclick="toggleModal(false)" style="background:none; border:none; font-size: 1.5rem; cursor:pointer;">&times;</button>
         </div>
-        
         <div class="add-box">
             <input type="text" id="novoNome" placeholder="Nome do colaborador">
             <button onclick="addNovoColab()" style="background: var(--primary-dark); color: white; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer;">ADD</button>
         </div>
-
         <div class="colab-list" id="listaAdminColaboradores"></div>
-
         <button onclick="toggleModal(false)" style="width: 100%; padding: 12px; margin-top: 15px; border: none; border-radius: 10px; background: #eee; font-weight: 600; cursor: pointer;">Concluir</button>
     </div>
 </div>
 
 <script>
+    // URL DO SEU GOOGLE APPS SCRIPT
+    const URL_GOOGLE_SHEETS = "SUBSTITUA_PELA_SUA_URL_DO_APPS_SCRIPT";
+
     let colaboradores = ["Edenildo Rodrigues", "Joelcinei Guimarães", "Matheus Costa", "Juenisson Belem", "Cezar Prado", "Ezequiel Silva", "Lucas Anjos"];
     let equipeSelecionada = [];
 
-    if (localStorage.getItem('tecnicos_v13')) {
-        colaboradores = JSON.parse(localStorage.getItem('tecnicos_v13'));
+    if (localStorage.getItem('tecnicos_v14')) {
+        colaboradores = JSON.parse(localStorage.getItem('tecnicos_v14'));
     }
 
     function atualizarSelect() {
@@ -230,7 +229,7 @@
         const n = document.getElementById('novoNome').value.trim();
         if (n) { 
             colaboradores.push(n); 
-            localStorage.setItem('tecnicos_v13', JSON.stringify(colaboradores)); 
+            localStorage.setItem('tecnicos_v14', JSON.stringify(colaboradores)); 
             atualizarSelect(); 
             document.getElementById('novoNome').value = ''; 
         }
@@ -239,7 +238,7 @@
     function excluirColaborador(nome) {
         if(confirm(`Remover ${nome}?`)) {
             colaboradores = colaboradores.filter(n => n !== nome);
-            localStorage.setItem('tecnicos_v13', JSON.stringify(colaboradores));
+            localStorage.setItem('tecnicos_v14', JSON.stringify(colaboradores));
             atualizarSelect();
         }
     }
@@ -250,7 +249,7 @@
         document.getElementById('hora_auto').value = agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
     }
 
-    function enviarWhatsApp() {
+    async function enviarRelatorio() {
         const form = document.getElementById('cftvForm');
         if (equipeSelecionada.length === 0) { alert("Adicione pelo menos um técnico!"); return; }
         if (!form.checkValidity()) { form.reportValidity(); return; }
@@ -268,8 +267,18 @@
             obs: document.getElementById('comentarios').value || "Nenhuma observação."
         };
 
-        const sep = "----------------------------------------";
+        // 1. ENVIO PARA O GOOGLE SHEETS
+        if (URL_GOOGLE_SHEETS !== "SUBSTITUA_PELA_SUA_URL_DO_APPS_SCRIPT") {
+            fetch(URL_GOOGLE_SHEETS, {
+                method: 'POST',
+                mode: 'no-cors',
+                cache: 'no-cache',
+                body: JSON.stringify(d)
+            }).catch(e => console.log("Erro Planilha: ", e));
+        }
 
+        // 2. MONTAGEM E ENVIO WHATSAPP
+        const sep = "----------------------------------------";
         const mensagem = `*RELATÓRIO DE MANUTENÇÃO CFTV*%0A` +
             `${sep}%0A%0A` +
             `*Atividade:*%0A${d.atividade}%0A` +
@@ -295,6 +304,7 @@
 
         window.open(`https://api.whatsapp.com/send?text=${mensagem}`, '_blank');
         
+        // Limpeza do formulário
         setTimeout(() => {
             form.reset();
             equipeSelecionada = [];
