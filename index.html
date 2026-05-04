@@ -46,11 +46,10 @@
         </div>
 
         <div class="form-group">
-            <label>Nº Chamado (INC + 7 dígitos ou SCTASK + 7 dígitos):</label>
-            <!-- Validação Regex: INC + 7 números OU SCTASK + 7 números -->
+            <label>Nº Chamado (INC ou SCTASK + 7 dígitos):</label>
             <input type="text" id="chamado" placeholder="Ex: INC1234567" 
                    pattern="^(INC\d{7}|SCTASK\d{7})$" 
-                   title="Deve iniciar com INC ou SCTASK seguido de exatamente 7 números." required>
+                   title="Inicie com INC ou SCTASK + 7 números." required>
         </div>
 
         <div class="form-group">
@@ -121,8 +120,8 @@
     let colaboradores = ["Edenildo Rodrigues", "Joelcinei Guimarães", "Matheus Costa", "Juenisson Belem", "Cezar Prado", "Ezequiel Silva", "Lucas Anjos"];
     let equipeSelecionada = [];
 
-    if (localStorage.getItem('tecnicos_v6')) {
-        colaboradores = JSON.parse(localStorage.getItem('tecnicos_v6'));
+    if (localStorage.getItem('tecnicos_v7')) {
+        colaboradores = JSON.parse(localStorage.getItem('tecnicos_v7'));
     }
 
     function atualizarSelect() {
@@ -131,8 +130,7 @@
         colaboradores.sort().forEach(nome => {
             const isSelected = equipeSelecionada.includes(nome);
             const disabledAttr = isSelected ? 'disabled' : '';
-            const styleAttr = isSelected ? 'style="color: #ccc; background: #f0f0f0;"' : '';
-            select.innerHTML += `<option value="${nome}" ${disabledAttr} ${styleAttr}>${nome} ${isSelected ? '(Selecionado)' : ''}</option>`;
+            select.innerHTML += `<option value="${nome}" ${disabledAttr}>${nome} ${isSelected ? '(Selecionado)' : ''}</option>`;
         });
         renderizarListaAdmin();
     }
@@ -151,7 +149,7 @@
         if (nome && !equipeSelecionada.includes(nome)) {
             equipeSelecionada.push(nome);
             renderBadges();
-            atualizarSelect(); // Bloqueia o nome no select
+            atualizarSelect();
         }
         select.value = "";
     }
@@ -159,7 +157,7 @@
     function removerBadge(nome) {
         equipeSelecionada = equipeSelecionada.filter(n => n !== nome);
         renderBadges();
-        atualizarSelect(); // Desbloqueia o nome no select
+        atualizarSelect();
     }
 
     function renderBadges() {
@@ -174,7 +172,7 @@
         const n = document.getElementById('novoNome').value.trim();
         if (n) { 
             colaboradores.push(n); 
-            localStorage.setItem('tecnicos_v6', JSON.stringify(colaboradores)); 
+            localStorage.setItem('tecnicos_v7', JSON.stringify(colaboradores)); 
             atualizarSelect(); 
             document.getElementById('novoNome').value = ''; 
         }
@@ -182,7 +180,7 @@
 
     function excluirColaborador(nome) {
         colaboradores = colaboradores.filter(n => n !== nome);
-        localStorage.setItem('tecnicos_v6', JSON.stringify(colaboradores));
+        localStorage.setItem('tecnicos_v7', JSON.stringify(colaboradores));
         atualizarSelect();
     }
 
@@ -200,13 +198,11 @@
     function enviarWhatsApp() {
         const form = document.getElementById('cftvForm');
         
-        // Verificação de equipe mínima
         if (equipeSelecionada.length === 0) {
             alert("Selecione pelo menos um colaborador!");
             return;
         }
 
-        // Validação nativa do formulário (required e patterns)
         if (!form.checkValidity()) {
             form.reportValidity();
             return;
@@ -225,21 +221,22 @@
             obs: document.getElementById('comentarios').value
         };
 
-        const mensagem = `*RELATÓRIO DE MANUTENÇÃO CFTV*%0A%0A` +
-            `*Atividade:* ${dados.atividade}%0A` +
-            `*Data:* ${dados.data}%0A` +
-            `*Hora:* ${dados.hora}%0A` +
-            `*Nº Chamado:* ${dados.chamado}%0A` +
-            `*Colaboradores:* ${dados.equipe}%0A` +
-            `*Site:* ${dados.site}%0A` +
-            `*Local:* ${dados.local}%0A` +
-            `*SkyMunck:* ${dados.skymunck}%0A` +
-            `*Status:* ${dados.status}%0A` +
-            `*Comentários:* ${dados.obs}`;
+        // Formatação WhatsApp: Título sublinhado com traços e espaçamento duplo entre campos
+        const mensagem = `*RELATÓRIO DE MANUTENÇÃO CFTV*%0A` +
+            `----------------------------------------%0A%0A` +
+            `*Atividade:*%0A${dados.atividade}%0A%0A` +
+            `*Data:*%0A${dados.data}%0A%0A` +
+            `*Hora:*%0A${dados.hora}%0A%0A` +
+            `*Nº Chamado:*%0A${dados.chamado}%0A%0A` +
+            `*Colaboradores:*%0A${dados.equipe}%0A%0A` +
+            `*Site:*%0A${dados.site}%0A%0A` +
+            `*Local:*%0A${dados.local}%0A%0A` +
+            `*SkyMunck:*%0A${dados.skymunck}%0A%0A` +
+            `*Status:*%0A${dados.status}%0A%0A` +
+            `*Comentários:*%0A${dados.obs}`;
 
         window.open(`https://api.whatsapp.com/send?text=${mensagem}`, '_blank');
         
-        // Reset completo após o envio
         setTimeout(() => {
             form.reset();
             equipeSelecionada = [];
